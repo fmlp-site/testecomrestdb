@@ -1,59 +1,122 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard do Administrador</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
       display: flex;
-    }
-    nav {
-      width: 220px;
-      background-color: #343a40;
       height: 100vh;
+      overflow: hidden;
+    }
+
+    /* MENU LATERAL */
+    .sidebar {
+      background-color: #343a40;
       color: white;
+      width: 220px;
+      min-width: 220px;
+      transition: width 0.3s ease;
+      height: 100vh;
       padding: 20px;
     }
-    nav h2 {
+
+    .sidebar.closed {
+      width: 60px;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 30px;
       text-align: center;
     }
-    nav ul {
+
+    .sidebar.closed h2 {
+      display: none;
+    }
+
+    .sidebar ul {
       list-style: none;
-      padding: 0;
-      margin-top: 30px;
     }
-    nav ul li {
-      margin: 15px 0;
+
+    .sidebar ul li {
+      margin-bottom: 20px;
     }
-    nav ul li a {
+
+    .sidebar ul li a {
       color: white;
       text-decoration: none;
+      display: block;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background 0.3s;
     }
-    main {
-      flex-grow: 1;
-      padding: 30px;
+
+    .sidebar ul li a:hover {
+      background-color: #495057;
+    }
+
+    /* BOTÃO DE TOGGLE */
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      left: 230px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: left 0.3s ease;
+    }
+
+    .sidebar.closed ~ .toggle-btn {
+      left: 70px;
+    }
+
+    /* CONTEÚDO PRINCIPAL */
+    .main-content {
+      flex: 1;
       background-color: #f8f9fa;
+      padding: 40px;
     }
   </style>
 </head>
 <body>
 
-<nav>
+<!-- MENU LATERAL -->
+<div class="sidebar" id="sidebar">
   <h2>Admin</h2>
   <ul>
-    <li><a href="#">Cadastrar Vestibular</a></li>
-    <li><a href="#">Listar Vestibulares</a></li>
-    <li><a href="#">Sair</a></li>
+    <li><a href="#">Processos Seletivos</a></li>
+    <li><a href="vestibulares.html">Vestibulares</a></li>
+    <li><a href="#">Concursos</a></li>
   </ul>
-</nav>
+</div>
 
-<main>
+<!-- BOTÃO DE TOGGLE -->
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<div class="main-content">
   <h1>Bem-vindo ao Painel do Administrador</h1>
-  <p>Aqui você pode gerenciar os processos seletivos.</p>
-</main>
+  <p>Utilize o menu lateral para gerenciar vestibulares e concursos.</p>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('closed');
+  }
+</script>
 
 </body>
 </html>
