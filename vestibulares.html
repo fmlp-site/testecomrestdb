@@ -8,24 +8,38 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 30px;
-      background-color: #f8f9fa;
+      background-color: #f5f7fa;
+      color: #333;
     }
 
     h1 {
       margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
     }
 
     button {
-      background-color: #007bff;
+      background-color: #3498db;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     /* Modal */
@@ -38,66 +52,135 @@
       background-color: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(5px);
     }
 
     .modal-content {
       background: white;
-      padding: 20px 30px;
-      border-radius: 8px;
-      width: 400px;
+      padding: 30px;
+      border-radius: 10px;
+      width: 450px;
+      max-width: 90%;
       position: relative;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .modal-content h2 {
       margin-top: 0;
+      color: #2c3e50;
+      text-align: center;
     }
 
     .modal-content label {
       display: block;
       margin-top: 15px;
+      font-weight: 500;
+      color: #2c3e50;
     }
 
     .modal-content input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    .modal-content input:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
     }
 
     .close {
       position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 20px;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
       cursor: pointer;
-      color: #555;
+      color: #7f8c8d;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #e74c3c;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
     }
 
     .success {
-      color: green;
-      margin-top: 10px;
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
     }
 
     .error {
-      color: red;
-      margin-top: 10px;
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .form-footer {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #submitBtn {
+      position: relative;
+    }
+
+    .loading-text {
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h1>Gestão de Vestibulares</h1>
-  <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Vestibular</button>
+  <h1><i class="fas fa-graduation-cap"></i> Gestão de Vestibulares</h1>
+  <div style="text-align: center; margin-bottom: 30px;">
+    <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Vestibular</button>
+  </div>
 
   <!-- Modal -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <span class="close" onclick="fecharModal()">&times;</span>
-      <h2>Novo Vestibular</h2>
+      <h2><i class="fas fa-book-open"></i> Novo Vestibular</h2>
       <form id="formVestibular">
         <label for="nome">Nome do Vestibular</label>
-        <input type="text" id="nome" required>
+        <input type="text" id="nome" required placeholder="Ex: Vestibular 2024">
 
         <label for="inicio">Data de Início das Inscrições</label>
         <input type="date" id="inicio" required>
@@ -105,8 +188,16 @@
         <label for="fim">Data de Término das Inscrições</label>
         <input type="date" id="fim" required>
 
-        <button type="submit" style="margin-top: 20px;">Salvar</button>
-        <div id="mensagem" class="success"></div>
+        <div id="mensagem" class="message"></div>
+
+        <div class="form-footer">
+          <button type="button" onclick="fecharModal()" style="background-color: #95a5a6;">Cancelar</button>
+          <button type="submit" id="submitBtn">
+            <span class="loading" id="loadingSpinner"></span>
+            <span class="loading-text">Processando...</span>
+            <span class="submit-text">Salvar</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -115,14 +206,21 @@
     const modal = document.getElementById('modal');
     const form = document.getElementById('formVestibular');
     const mensagem = document.getElementById('mensagem');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const loadingText = document.querySelector('.loading-text');
+    const submitText = document.querySelector('.submit-text');
 
     function abrirModal() {
       modal.style.display = 'flex';
       mensagem.textContent = '';
+      mensagem.className = 'message';
+      document.getElementById('nome').focus();
     }
 
     function fecharModal() {
       modal.style.display = 'none';
+      form.reset();
     }
 
     window.onclick = function(event) {
@@ -133,15 +231,29 @@
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      loadingSpinner.style.display = 'inline-block';
+      loadingText.style.display = 'inline';
+      submitText.style.display = 'none';
 
-      const nome = document.getElementById('nome').value;
+      const nome = document.getElementById('nome').value.trim();
       const inicio = document.getElementById('inicio').value;
       const fim = document.getElementById('fim').value;
+
+      // Validate dates
+      if (new Date(fim) < new Date(inicio)) {
+        showError("A data de término deve ser posterior à data de início");
+        resetSubmitButton();
+        return;
+      }
 
       const dados = {
         nome: nome,
         data_inicio: inicio,
-        data_fim: fim
+        data_fim: fim,
+        criado_em: new Date().toISOString()
       };
 
       try {
@@ -155,22 +267,46 @@
           body: JSON.stringify(dados)
         });
 
+        const respostaData = await resposta.json();
+
         if (resposta.ok) {
-          mensagem.textContent = "Vestibular cadastrado com sucesso!";
-          mensagem.classList.remove('error');
-          mensagem.classList.add('success');
+          showSuccess("Vestibular cadastrado com sucesso!");
           form.reset();
+          setTimeout(fecharModal, 1500);
         } else {
-          mensagem.textContent = "Erro ao cadastrar vestibular.";
-          mensagem.classList.remove('success');
-          mensagem.classList.add('error');
+          // Handle specific errors from restdb.io
+          let errorMsg = "Erro ao cadastrar vestibular";
+          if (respostaData.message) {
+            errorMsg += ": " + respostaData.message;
+          } else if (respostaData.errors) {
+            errorMsg += ": " + Object.values(respostaData.errors).join(", ");
+          }
+          showError(errorMsg);
         }
       } catch (erro) {
-        mensagem.textContent = "Erro de conexão com o banco de dados.";
-        mensagem.classList.remove('success');
-        mensagem.classList.add('error');
+        console.error('Erro:', erro);
+        showError("Erro de conexão com o banco de dados. Verifique sua internet e tente novamente.");
+      } finally {
+        resetSubmitButton();
       }
     });
+
+    function showSuccess(message) {
+      mensagem.textContent = message;
+      mensagem.className = 'message success';
+    }
+
+    function showError(message) {
+      mensagem.textContent = message;
+      mensagem.className = 'message error';
+    }
+
+    function resetSubmitButton() {
+      submitBtn.disabled = false;
+      loadingSpinner.style.display = 'none';
+      loadingText.style.display = 'none';
+      submitText.style.display = 'inline';
+    }
   </script>
 
 </body>
