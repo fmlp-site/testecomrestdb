@@ -145,11 +145,11 @@
       };
 
       try {
-        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/vestibular?max=2', {
+        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/vestibular', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad	',
+            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
             'cache-control': 'no-cache'
           },
           body: JSON.stringify(dados)
@@ -157,6 +157,8 @@
 
         if (resposta.ok) {
           mensagem.textContent = "Vestibular cadastrado com sucesso!";
+          mensagem.classList.remove('error');
+          mensagem.classList.add('success');
           form.reset();
         } else {
           mensagem.textContent = "Erro ao cadastrar vestibular.";
