@@ -1,57 +1,396 @@
-async function carregarVestibulares() {
-  try {
-    const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/vestibular', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
-        'cache-control': 'no-cache'
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vestibulares</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 30px;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 450px;
+      max-width: 90%;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    .modal-content input:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #7f8c8d;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #e74c3c;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .form-footer {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #submitBtn {
+      position: relative;
+    }
+
+    .loading {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      display: none;
+    }
+
+    /* Lista */
+    #lista-vestibulares {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #ecf0f1;
+    }
+
+    td:last-child {
+      text-align: center;
+    }
+
+    .btn-gerenciar {
+      padding: 6px 12px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1><i class="fas fa-graduation-cap"></i> Gestão de Vestibulares</h1>
+  <div style="text-align: center; margin-bottom: 30px;">
+    <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Vestibular</button>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal()">&times;</span>
+      <h2><i class="fas fa-book-open"></i> Novo Vestibular</h2>
+      <form id="formVestibular">
+        <label for="nome">Nome do Vestibular</label>
+        <input type="text" id="nome" required placeholder="Ex: Vestibular 2024">
+
+        <label for="inicio">Data de Início das Inscrições</label>
+        <input type="date" id="inicio" required>
+
+        <label for="fim">Data de Término das Inscrições</label>
+        <input type="date" id="fim" required>
+
+        <div id="mensagem" class="message"></div>
+
+        <div class="form-footer">
+          <button type="button" onclick="fecharModal()" style="background-color: #95a5a6;">Cancelar</button>
+          <button type="submit" id="submitBtn">
+            <span class="loading" id="loadingSpinner"></span>
+            <span class="loading-text">Processando...</span>
+            <span class="submit-text">Salvar</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="lista-vestibulares">
+    <h2 style="text-align: center;">Vestibulares Cadastrados</h2>
+    <div id="tabela-vestibulares"></div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    const form = document.getElementById('formVestibular');
+    const mensagem = document.getElementById('mensagem');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const loadingText = document.querySelector('.loading-text');
+    const submitText = document.querySelector('.submit-text');
+
+    function abrirModal() {
+      modal.style.display = 'flex';
+      mensagem.textContent = '';
+      mensagem.className = 'message';
+      document.getElementById('nome').focus();
+    }
+
+    function fecharModal() {
+      modal.style.display = 'none';
+      form.reset();
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        fecharModal();
+      }
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      submitBtn.disabled = true;
+      loadingSpinner.style.display = 'inline-block';
+      loadingText.style.display = 'inline';
+      submitText.style.display = 'none';
+
+      const nome = document.getElementById('nome').value.trim();
+      const inicio = document.getElementById('inicio').value;
+      const fim = document.getElementById('fim').value;
+
+      if (new Date(fim) < new Date(inicio)) {
+        showError("A data de término deve ser posterior à data de início");
+        resetSubmitButton();
+        return;
+      }
+
+      const dados = {
+        nome: nome,
+        data_inicio: inicio,
+        data_fim: fim,
+        criado_em: new Date().toISOString()
+      };
+
+      try {
+        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/vestibular', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
+            'cache-control': 'no-cache'
+          },
+          body: JSON.stringify(dados)
+        });
+
+        if (resposta.ok) {
+          showSuccess("Vestibular cadastrado com sucesso!");
+          form.reset();
+          carregarVestibulares();
+          setTimeout(fecharModal, 1500);
+        } else {
+          showError("Erro ao cadastrar vestibular.");
+        }
+      } catch (erro) {
+        showError("Erro de conexão com o banco de dados.");
+      } finally {
+        resetSubmitButton();
       }
     });
 
-    const vestibulares = await resposta.json();
-
-    const tabelaDiv = document.getElementById('tabela-vestibulares');
-
-    if (vestibulares.length === 0) {
-      tabelaDiv.innerHTML = "<p style='text-align:center'>Nenhum vestibular cadastrado ainda.</p>";
-      return;
+    function showSuccess(message) {
+      mensagem.textContent = message;
+      mensagem.className = 'message success';
     }
 
-    let html = `<table style="width:100%; border-collapse:collapse; margin-top: 20px;">
-      <thead>
-        <tr style="background:#ecf0f1;">
-          <th style="padding:10px; text-align:left; border:1px solid #ccc;">Nome</th>
-          <th style="padding:10px; text-align:left; border:1px solid #ccc;">Início</th>
-          <th style="padding:10px; text-align:left; border:1px solid #ccc;">Término</th>
-          <th style="padding:10px; text-align:center; border:1px solid #ccc;">Ações</th>
-        </tr>
-      </thead><tbody>`;
+    function showError(message) {
+      mensagem.textContent = message;
+      mensagem.className = 'message error';
+    }
 
-    vestibulares.forEach(v => {
-      html += `
-        <tr>
-          <td style="padding:10px; border:1px solid #ccc;">${v.nome}</td>
-          <td style="padding:10px; border:1px solid #ccc;">${v.data_inicio}</td>
-          <td style="padding:10px; border:1px solid #ccc;">${v.data_fim}</td>
-          <td style="padding:10px; text-align:center; border:1px solid #ccc;">
-            <a href="gerenciarvest.html?id=${v._id}">
-              <button style="padding:6px 12px; background:#27ae60; color:white; border:none; border-radius:4px; cursor:pointer;">
-                Gerenciar
-              </button>
-            </a>
-          </td>
-        </tr>`;
-    });
+    function resetSubmitButton() {
+      submitBtn.disabled = false;
+      loadingSpinner.style.display = 'none';
+      loadingText.style.display = 'none';
+      submitText.style.display = 'inline';
+    }
 
-    html += `</tbody></table>`;
-    tabelaDiv.innerHTML = html;
+    async function carregarVestibulares() {
+      try {
+        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/vestibular', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
+            'cache-control': 'no-cache'
+          }
+        });
 
-  } catch (erro) {
-    console.error('Erro ao buscar vestibulares:', erro);
-    document.getElementById('tabela-vestibulares').innerHTML = "<p style='color:red'>Erro ao carregar vestibulares.</p>";
-  }
-}
+        const vestibulares = await resposta.json();
+        const tabelaDiv = document.getElementById('tabela-vestibulares');
 
-// Chamar assim que carregar a página
-window.addEventListener('DOMContentLoaded', carregarVestibulares);
+        if (vestibulares.length === 0) {
+          tabelaDiv.innerHTML = "<p style='text-align:center'>Nenhum vestibular cadastrado ainda.</p>";
+          return;
+        }
+
+        let html = `<table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Início</th>
+              <th>Término</th>
+              <th>Ações</th>
+            </tr>
+          </thead><tbody>`;
+
+        vestibulares.forEach(v => {
+          html += `
+            <tr>
+              <td>${v.nome}</td>
+              <td>${v.data_inicio}</td>
+              <td>${v.data_fim}</td>
+              <td>
+                <a href="gerenciarvest.html?id=${v._id}">
+                  <button class="btn-gerenciar">Gerenciar</button>
+                </a>
+              </td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        tabelaDiv.innerHTML = html;
+
+      } catch (erro) {
+        console.error('Erro ao buscar vestibulares:', erro);
+        document.getElementById('tabela-vestibulares').innerHTML = "<p style='color:red'>Erro ao carregar vestibulares.</p>";
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarVestibulares);
+  </script>
+
+</body>
+</html>
