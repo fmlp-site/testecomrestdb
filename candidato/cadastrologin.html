@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login e Cadastro - Candidato</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .msg {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Candidato</h2>
+
+    <label for="cpf">CPF</label>
+    <input type="text" id="cpf" placeholder="Somente números" required>
+
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" required>
+
+    <button onclick="cadastrar()">Cadastrar</button>
+    <button onclick="login()">Login</button>
+
+    <div id="mensagem" class="msg"></div>
+  </div>
+
+  <script>
+    const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
+    const BASE_URL = "https://vestibulares-302d.restdb.io/rest/candidatos?max=2";
+    const msg = document.getElementById("mensagem");
+
+    function showMessage(texto, tipo = "success") {
+      msg.textContent = texto;
+      msg.className = `msg ${tipo}`;
+      msg.style.display = "block";
+    }
+
+    function getInputValues() {
+      const cpf = document.getElementById("cpf").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      return { cpf, senha };
+    }
+
+    function cadastrar() {
+      const { cpf, senha } = getInputValues();
+      if (!cpf || !senha) {
+        showMessage("Preencha todos os campos!", "error");
+        return;
+      }
+
+      fetch(`${BASE_URL}?q={"cpf":"${cpf}"}`, {
+        headers: { "x-apikey": API_KEY }
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.length > 0) {
+          showMessage("CPF já cadastrado.", "error");
+        } else {
+          fetch(BASE_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-apikey": API_KEY
+            },
+            body: JSON.stringify({ cpf, senha, criado_em: new Date().toISOString() })
+          })
+          .then(res => {
+            if (res.ok) {
+              showMessage("Cadastro realizado com sucesso!", "success");
+            } else {
+              showMessage("Erro ao cadastrar.", "error");
+            }
+          });
+        }
+      })
+      .catch(() => showMessage("Erro na conexão.", "error"));
+    }
+
+    function login() {
+      const { cpf, senha } = getInputValues();
+      if (!cpf || !senha) {
+        showMessage("Preencha todos os campos!", "error");
+        return;
+      }
+
+      fetch(`${BASE_URL}?q={"cpf":"${cpf}","senha":"${senha}"}`, {
+        headers: { "x-apikey": API_KEY }
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.length === 1) {
+          window.location.href = `portalcandidato.html?cpf=${cpf}`;
+        } else {
+          showMessage("CPF ou senha inválidos.", "error");
+        }
+      })
+      .catch(() => showMessage("Erro ao tentar login.", "error"));
+    }
+  </script>
+
+</body>
+</html>
