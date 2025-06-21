@@ -1,120 +1,137 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard do Administrador</title>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
-    /* MENU LATERAL */
     .sidebar {
       background-color: #343a40;
       color: white;
-      width: 220px;
-      min-width: 220px;
-      transition: width 0.3s ease;
-      height: 100vh;
-      padding: 20px;
+      width: 60px; /* menu fechado inicialmente */
+      transition: width 0.3s;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    .sidebar.closed {
-      width: 60px;
+    .sidebar.open {
+      width: 220px;
+    }
+
+    .sidebar .toggle-btn {
+      padding: 15px;
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 30px;
       text-align: center;
-    }
-
-    .sidebar.closed h2 {
+      margin: 20px 0;
+      font-size: 20px;
       display: none;
     }
 
-    .sidebar ul {
-      list-style: none;
-    }
-
-    .sidebar ul li {
-      margin-bottom: 20px;
-    }
-
-    .sidebar ul li a {
-      color: white;
-      text-decoration: none;
+    .sidebar.open h2 {
       display: block;
-      padding: 10px;
-      border-radius: 5px;
-      transition: background 0.3s;
     }
 
-    .sidebar ul li a:hover {
-      background-color: #495057;
+    .menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex-grow: 1;
     }
 
-    /* BOTÃO DE TOGGLE */
-    .toggle-btn {
-      position: absolute;
-      top: 20px;
-      left: 230px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
+    .menu li {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
       cursor: pointer;
-      border-radius: 5px;
-      transition: left 0.3s ease;
     }
 
-    .sidebar.closed ~ .toggle-btn {
-      left: 70px;
+    .menu li i {
+      margin-right: 10px;
+      font-size: 18px;
+      min-width: 20px;
+      text-align: center;
     }
 
-    /* CONTEÚDO PRINCIPAL */
-    .main-content {
-      flex: 1;
+    .menu li span {
+      display: none;
+    }
+
+    .sidebar.open .menu li span {
+      display: inline;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 30px;
       background-color: #f8f9fa;
-      padding: 40px;
     }
   </style>
 </head>
 <body>
 
-<!-- MENU LATERAL -->
+<!-- Menu Lateral -->
 <div class="sidebar" id="sidebar">
+  <div class="toggle-btn" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i>
+  </div>
   <h2>Admin</h2>
-  <ul>
-    <li><a href="#">Processos Seletivos</a></li>
-    <li><a href="vestibulares.html">Vestibulares</a></li>
-    <li><a href="#">Concursos</a></li>
+  <ul class="menu">
+    <li onclick="alert('Página de Processos Seletivos')">
+      <i class="fas fa-list"></i>
+      <span>Processos Seletivos</span>
+    </li>
+    <li onclick="window.location.href='vestibulares.html'">
+      <i class="fas fa-graduation-cap"></i>
+      <span>Vestibulares</span>
+    </li>
+    <li onclick="alert('Página de Concursos')">
+      <i class="fas fa-university"></i>
+      <span>Concursos</span>
+    </li>
   </ul>
 </div>
 
-<!-- BOTÃO DE TOGGLE -->
-<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
-<!-- CONTEÚDO PRINCIPAL -->
-<div class="main-content">
+<!-- Conteúdo Principal -->
+<main>
   <h1>Bem-vindo ao Painel do Administrador</h1>
-  <p>Utilize o menu lateral para gerenciar vestibulares e concursos.</p>
-</div>
+  <p>Use o menu à esquerda para navegar entre os módulos.</p>
+</main>
 
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('closed');
+  const sidebar = document.getElementById('sidebar');
+
+  // Verifica se o menu deve começar aberto ou fechado (por padrão fechado)
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('menuAberto') === 'true') {
+      sidebar.classList.add('open');
+    }
+  });
+
+  // Função de abrir/fechar menu
+  function toggleMenu() {
+    sidebar.classList.toggle('open');
+    localStorage.setItem('menuAberto', sidebar.classList.contains('open'));
   }
 </script>
 
