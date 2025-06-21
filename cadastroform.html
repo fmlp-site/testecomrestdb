@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastro de Campos do Formulário</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 30px;
+      background-color: #f5f7fa;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .msg {
+      margin-top: 15px;
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .success { background-color: #d4edda; color: #155724; }
+    .error { background-color: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+
+  <h1>Cadastro de Campos do Formulário</h1>
+  <div class="form-container">
+    <form id="campoForm">
+      <input type="hidden" id="vestibular_id" />
+
+      <label for="nomeCampo">Nome do Campo</label>
+      <input type="text" id="nomeCampo" required placeholder="Ex: Nome completo">
+
+      <label for="tipoCampo">Tipo do Campo</label>
+      <select id="tipoCampo" required>
+        <option value="">Selecione...</option>
+        <option value="text">Texto</option>
+        <option value="number">Número</option>
+        <option value="date">Data</option>
+        <option value="email">Email</option>
+        <option value="file">Arquivo</option>
+      </select>
+
+      <button type="submit">Adicionar Campo</button>
+      <div class="msg" id="mensagem"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('campoForm');
+    const vestibularId = new URLSearchParams(window.location.search).get('id');
+    document.getElementById('vestibular_id').value = vestibularId;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('nomeCampo').value.trim();
+      const tipo = document.getElementById('tipoCampo').value;
+
+      const dados = {
+        vestibular_id: vestibularId,
+        nome_campo: nome,
+        tipo_campo: tipo
+      };
+
+      try {
+        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/formcampos?max=2', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad'
+          },
+          body: JSON.stringify(dados)
+        });
+
+        if (resposta.ok) {
+          mostrarMensagem("Campo adicionado com sucesso!", true);
+          form.reset();
+        } else {
+          mostrarMensagem("Erro ao salvar o campo.", false);
+        }
+      } catch (err) {
+        mostrarMensagem("Erro de conexão com a API.", false);
+      }
+    });
+
+    function mostrarMensagem(texto, sucesso) {
+      const msg = document.getElementById('mensagem');
+      msg.textContent = texto;
+      msg.className = 'msg ' + (sucesso ? 'success' : 'error');
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    }
+  </script>
+
+</body>
+</html>
