@@ -93,22 +93,6 @@
       color: #2980b9;
     }
 
-    .campo {
-      margin: 10px 0;
-    }
-
-    .campo label {
-      font-weight: bold;
-      display: block;
-    }
-
-    .campo input, .campo select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
     button {
       padding: 10px 20px;
       background-color: #3498db;
@@ -116,7 +100,7 @@
       color: white;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     button:hover {
@@ -141,14 +125,13 @@
   <div class="content">
     <h1 id="bemvindo">Olá, seja bem-vindo candidato!</h1>
     <div class="lista-vestibulares" id="vestibularesArea">
-      <!-- Vestibulares aparecem aqui -->
+      <!-- Vestibulares serão listados aqui -->
     </div>
   </div>
 
   <script>
     const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
-    const urlParams = new URLSearchParams(window.location.search);
-    const cpf = urlParams.get("cpf");
+    const cpf = new URLSearchParams(window.location.search).get("cpf");
     const vestibularesArea = document.getElementById("vestibularesArea");
 
     if (cpf) {
@@ -163,9 +146,7 @@
       vestibularesArea.innerHTML = "<p>Carregando vestibulares...</p>";
 
       fetch("https://vestibulares-302d.restdb.io/rest/vestibular", {
-        headers: {
-          "x-apikey": API_KEY
-        }
+        headers: { "x-apikey": API_KEY }
       })
       .then(res => res.json())
       .then(vestibulares => {
@@ -183,80 +164,24 @@
           const titulo = document.createElement("h3");
           titulo.textContent = v.nome;
 
+          const botao = document.createElement("button");
+          botao.textContent = "Fazer Inscrição";
+          botao.onclick = () => {
+            window.location.href = `inscricao.html?id=${v._id}&cpf=${cpf}`;
+          };
+
           div.appendChild(titulo);
-
-          // Buscar os campos do formulário
-          fetch(`https://vestibulares-302d.restdb.io/rest/formulario?q={"vestibular_id":"${v._id}"}`, {
-            headers: { "x-apikey": API_KEY }
-          })
-          .then(res => res.json())
-          .then(campos => {
-            campos.forEach(campo => {
-              const campoDiv = document.createElement("div");
-              campoDiv.className = "campo";
-
-              const label = document.createElement("label");
-              label.textContent = campo.nome_campo;
-
-              let input;
-              if (campo.tipo === "select") {
-                input = document.createElement("select");
-                campo.opcoes.forEach(op => {
-                  const opt = document.createElement("option");
-                  opt.value = op;
-                  opt.textContent = op;
-                  input.appendChild(opt);
-                });
-              } else {
-                input = document.createElement("input");
-                input.type = campo.tipo || "text";
-              }
-
-              input.name = campo.nome_campo;
-              campoDiv.appendChild(label);
-              campoDiv.appendChild(input);
-              div.appendChild(campoDiv);
-            });
-
-            const botao = document.createElement("button");
-            botao.textContent = "Enviar Inscrição";
-            botao.onclick = () => {
-              const dados = {
-                vestibular_id: v._id,
-                cpf: cpf
-              };
-              const inputs = div.querySelectorAll("input, select");
-              inputs.forEach(input => {
-                dados[input.name] = input.value;
-              });
-
-              // Aqui você decide onde salvar: por exemplo na coleção "inscricoes"
-              fetch("https://vestibulares-302d.restdb.io/rest/inscricoes", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "x-apikey": API_KEY
-                },
-                body: JSON.stringify(dados)
-              })
-              .then(resp => {
-                if (resp.ok) {
-                  alert("Inscrição enviada com sucesso!");
-                } else {
-                  alert("Erro ao enviar inscrição.");
-                }
-              });
-            };
-
-            div.appendChild(botao);
-          });
-
+          div.appendChild(botao);
           vestibularesArea.appendChild(div);
         });
+      })
+      .catch(err => {
+        vestibularesArea.innerHTML = "<p style='color:red;'>Erro ao carregar vestibulares.</p>";
+        console.error(err);
       });
     }
 
-    // Carrega ao entrar
+    // Carrega automaticamente ao abrir a página
     carregarVestibulares();
   </script>
 
