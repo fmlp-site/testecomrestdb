@@ -2,141 +2,231 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Cadastro de Campos do Formulário</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Formulário</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 30px;
+      font-family: Arial, sans-serif;
       background-color: #f5f7fa;
     }
 
-    h1 {
-      text-align: center;
-      color: #2c3e50;
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 250px;
+      height: 100vh;
+      background-color: #2c3e50;
+      color: white;
+      transition: width 0.3s;
+      overflow: hidden;
     }
 
-    .form-container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    .sidebar.closed {
+      width: 70px;
+    }
+
+    .sidebar .toggle {
+      background-color: #1a252f;
+      padding: 10px;
+      text-align: right;
+      cursor: pointer;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .sidebar ul li {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .sidebar ul li:hover {
+      background-color: #34495e;
+    }
+
+    .sidebar ul li i {
+      margin-right: 15px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar.closed ul li span {
+      display: none;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      transition: margin-left 0.3s;
+    }
+
+    .sidebar.closed + .content {
+      margin-left: 70px;
+    }
+
+    h1 {
+      color: #2c3e50;
     }
 
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
-    button {
+    .btn {
       margin-top: 20px;
-      padding: 12px;
+      padding: 10px 15px;
       background-color: #3498db;
-      color: white;
       border: none;
-      border-radius: 6px;
+      color: white;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background-color: #2980b9;
     }
 
     .msg {
       margin-top: 15px;
-      text-align: center;
       padding: 10px;
       border-radius: 5px;
       display: none;
     }
 
-    .success { background-color: #d4edda; color: #155724; }
-    .error { background-color: #f8d7da; color: #721c24; }
+    .msg.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .msg.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Cadastro de Campos do Formulário</h1>
-  <div class="form-container">
-    <form id="campoForm">
-      <input type="hidden" id="vestibular_id" />
+  <!-- MENU LATERAL -->
+  <div class="sidebar closed" id="sidebar">
+    <div class="toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul>
+      <li><i class="fas fa-tasks"></i> <span>Processos Seletivos</span></li>
+      <li onclick="window.location.href='vestibulares.html'"><i class="fas fa-file-alt"></i> <span>Vestibulares</span></li>
+      <li><i class="fas fa-bullhorn"></i> <span>Concursos</span></li>
+    </ul>
+  </div>
 
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="content">
+    <h1>Cadastro de Campos do Formulário</h1>
+    <p><strong>ID do Vestibular:</strong> <span id="vestibularIdSpan"></span></p>
+
+    <form id="formCampo">
       <label for="nomeCampo">Nome do Campo</label>
       <input type="text" id="nomeCampo" required placeholder="Ex: Nome completo">
 
       <label for="tipoCampo">Tipo do Campo</label>
-      <select id="tipoCampo" required>
-        <option value="">Selecione...</option>
+      <select id="tipoCampo" required onchange="toggleOpcoes()">
+        <option value="">Selecione</option>
         <option value="text">Texto</option>
         <option value="number">Número</option>
         <option value="date">Data</option>
-        <option value="email">Email</option>
-        <option value="file">Arquivo</option>
+        <option value="select">Seleção (lista)</option>
       </select>
 
-      <button type="submit">Adicionar Campo</button>
+      <div id="opcoesBox" style="display:none;">
+        <label for="opcoes">Opções (separadas por vírgula)</label>
+        <textarea id="opcoes" placeholder="Ex: Ampla Concorrência, Cotas, PCD"></textarea>
+      </div>
+
+      <button type="submit" class="btn">Salvar Campo</button>
       <div class="msg" id="mensagem"></div>
     </form>
   </div>
 
   <script>
-    const form = document.getElementById('campoForm');
-    const vestibularId = new URLSearchParams(window.location.search).get('id');
-    document.getElementById('vestibular_id').value = vestibularId;
+    const apiKey = '6855efa8bb5ccc0c9cf6d9ad';
+    const apiUrl = 'https://vestibulares-302d.restdb.io/rest/formcampos?max=2';
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // Pega o ID da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const vestibularId = urlParams.get('id');
+    document.getElementById('vestibularIdSpan').textContent = vestibularId;
 
-      const nome = document.getElementById('nomeCampo').value.trim();
+    // Toggle do menu
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('closed');
+    }
+
+    // Mostrar/ocultar textarea de opções
+    function toggleOpcoes() {
       const tipo = document.getElementById('tipoCampo').value;
+      document.getElementById('opcoesBox').style.display = tipo === 'select' ? 'block' : 'none';
+    }
+
+    // Enviar campo ao banco
+    document.getElementById('formCampo').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const nomeCampo = document.getElementById('nomeCampo').value.trim();
+      const tipoCampo = document.getElementById('tipoCampo').value;
+      const opcoesRaw = document.getElementById('opcoes').value.trim();
 
       const dados = {
         vestibular_id: vestibularId,
-        nome_campo: nome,
-        tipo_campo: tipo
+        nome_campo: nomeCampo,
+        tipo: tipoCampo,
+        criado_em: new Date().toISOString()
       };
 
+      if (tipoCampo === 'select' && opcoesRaw.length > 0) {
+        dados.opcoes = opcoesRaw.split(',').map(op => op.trim());
+      }
+
       try {
-        const resposta = await fetch('https://vestibulares-302d.restdb.io/rest/formcampos?max=2', {
+        const res = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-apikey': '6855efa8bb5ccc0c9cf6d9ad'
+            'x-apikey': apiKey
           },
           body: JSON.stringify(dados)
         });
 
-        if (resposta.ok) {
-          mostrarMensagem("Campo adicionado com sucesso!", true);
-          form.reset();
+        if (res.ok) {
+          mostrarMensagem('Campo salvo com sucesso!', true);
+          document.getElementById('formCampo').reset();
+          toggleOpcoes();
         } else {
-          mostrarMensagem("Erro ao salvar o campo.", false);
+          mostrarMensagem('Erro ao salvar o campo.', false);
         }
       } catch (err) {
-        mostrarMensagem("Erro de conexão com a API.", false);
+        mostrarMensagem('Erro de conexão.', false);
       }
     });
 
-    function mostrarMensagem(texto, sucesso) {
-      const msg = document.getElementById('mensagem');
-      msg.textContent = texto;
-      msg.className = 'msg ' + (sucesso ? 'success' : 'error');
-      msg.style.display = 'block';
-      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    function mostrarMensagem(msg, sucesso) {
+      const div = document.getElementById('mensagem');
+      div.textContent = msg;
+      div.className = 'msg ' + (sucesso ? 'success' : 'error');
+      div.style.display = 'block';
+      setTimeout(() => div.style.display = 'none', 3000);
     }
   </script>
 
