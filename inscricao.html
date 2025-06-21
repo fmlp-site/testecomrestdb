@@ -40,14 +40,20 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #5a6fd1 0%, #68438f 100%);
+        }
     </style>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-12">
         <div class="bg-white rounded-lg shadow-xl form-container p-8">
             <div id="header" class="text-center mb-10">
-                <h1 id="examTitle" class="text-3xl font-bold text-indigo-700 mb-2">Carregando formulário...</h1>
-                <p id="examDescription" class="text-gray-600">Por favor, aguarde enquanto carregamos as informações do vestibular.</p>
+                <h1 id="examTitle" class="text-3xl font-bold text-indigo-700 mb-2">Formulário de Inscrição</h1>
+                <p id="examDescription" class="text-gray-600">Preencha os campos abaixo para realizar sua inscrição</p>
             </div>
 
             <div id="loading" class="loading">
@@ -83,57 +89,44 @@
             const urlParams = new URLSearchParams(window.location.search);
             const examId = urlParams.get('id');
             
-            if (!examId) {
-                alert('ID do vestibular não encontrado na URL!');
-                return;
-            }
-
             // RESTDB.io configuration
-            const API_KEY = '6855efa8bb5ccc0c9cf6d9ad'; // Substitua pela sua chave de API
-            const BASE_URL = 'hhttps://vestibulares-302d.restdb.io/rest/formcampos?max=2'; // Substitua pelo URL da sua base
+            const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
+            const BASE_URL = 'https://vestibulares-302d.restdb.io/rest';
             
-            // Load exam data and form fields
-            loadExamData(examId);
+            // Load form fields based on exam ID
+            loadFormFields(examId);
             
             // Form submission handler
             document.getElementById('registrationForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                submitForm();
+                submitForm(examId);
             });
 
-            async function loadExamData(examId) {
+            async function loadFormFields(examId) {
                 try {
-                    // Fetch exam data
-                    const examResponse = await fetch(`${BASE_URL}/vestibulares/${examId}`, {
+                    let url = `${BASE_URL}/formcampos`;
+                    
+                    // If exam ID is provided, filter fields for this exam
+                    if (examId) {
+                        url += `?q={"vestibularId": "${examId}"}`;
+                    }
+                    
+                    const response = await fetch(url, {
                         headers: {
                             'x-apikey': API_KEY,
                             'Content-Type': 'application/json'
                         }
                     });
                     
-                    if (!examResponse.ok) {
-                        throw new Error('Vestibular não encontrado');
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar campos do formulário');
                     }
                     
-                    const examData = await examResponse.json();
+                    const fieldsData = await response.json();
                     
-                    // Update header with exam info
-                    document.getElementById('examTitle').textContent = `Inscrição: ${examData.nome}`;
-                    document.getElementById('examDescription').textContent = examData.descricao || 'Preencha o formulário abaixo para realizar sua inscrição';
-                    
-                    // Fetch form fields configuration
-                    const fieldsResponse = await fetch(`${BASE_URL}/vestibulares/${examId}/campos`, {
-                        headers: {
-                            'x-apikey': API_KEY,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    if (!fieldsResponse.ok) {
-                        throw new Error('Configuração do formulário não encontrada');
+                    if (fieldsData.length === 0) {
+                        throw new Error('Nenhum campo encontrado para este vestibular');
                     }
-                    
-                    const fieldsData = await fieldsResponse.json();
                     
                     // Build form dynamically
                     renderFormFields(fieldsData);
@@ -141,6 +134,11 @@
                     // Hide loading, show form
                     document.getElementById('loading').classList.add('hidden');
                     document.getElementById('registrationForm').classList.remove('hidden');
+                    
+                    // Update title if exam ID is provided
+                    if (examId) {
+                        document.getElementById('examTitle').textContent = `Inscrição para Vestibular ${examId}`;
+                    }
                     
                 } catch (error) {
                     console.error('Erro ao carregar dados:', error);
@@ -161,20 +159,26 @@
                 const container = document.getElementById('fieldsContainer');
                 container.innerHTML = '';
                 
-                fields.forEach((field, index) => {
+                fields.forEach((field) => {
                     const fieldDiv = document.createElement('div');
                     fieldDiv.className = 'form-group';
                     
+                    // Default field properties if not provided
+                    field.type = field.type || 'text';
+                    field.label = field.label || field.name;
+                    field.required = field.required || false;
+                    field.placeholder = field.placeholder || '';
+                    
                     let fieldHtml = `
-                        <label for="${field.id}" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="${field.name}" class="block text-sm font-medium text-gray-700 mb-1">
                             ${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}
                         </label>
                     `;
                     
                     if (field.type === 'select') {
-                        const options = field.options.split(',');
+                        const options = field.options ? field.options.split(',') : [];
                         fieldHtml += `
-                            <select id="${field.id}" name="${field.name || field.id}" 
+                            <select id="${field.name}" name="${field.name}" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
                                 ${field.required ? 'required' : ''}>
                                 <option value="">Selecione uma opção</option>
@@ -183,20 +187,23 @@
                         `;
                     } else if (field.type === 'textarea') {
                         fieldHtml += `
-                            <textarea id="${field.id}" name="${field.name || field.id}" rows="4"
+                            <textarea id="${field.name}" name="${field.name}" rows="4"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                                placeholder="${field.placeholder}"
                                 ${field.required ? 'required' : ''}></textarea>
                         `;
                     } else if (field.type === 'checkbox') {
                         fieldHtml += `
-                            <input type="checkbox" id="${field.id}" name="${field.name || field.id}"
-                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-4 w-4"
-                                ${field.required ? 'required' : ''}>
-                            <span class="ml-2 text-gray-700">${field.placeholder || ''}</span>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="${field.name}" name="${field.name}"
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-4 w-4"
+                                    ${field.required ? 'required' : ''}>
+                                <span class="ml-2 text-gray-700">${field.placeholder || field.label}</span>
+                            </div>
                         `;
                     } else if (field.type === 'file') {
                         fieldHtml += `
-                            <input type="file" id="${field.id}" name="${field.name || field.id}"
+                            <input type="file" id="${field.name}" name="${field.name}"
                                 class="mt-1 block w-full text-sm text-gray-500
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
@@ -207,9 +214,9 @@
                         `;
                     } else {
                         fieldHtml += `
-                            <input type="${field.type || 'text'}" id="${field.id}" name="${field.name || field.id}"
+                            <input type="${field.type}" id="${field.name}" name="${field.name}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
-                                placeholder="${field.placeholder || ''}"
+                                placeholder="${field.placeholder}"
                                 ${field.required ? 'required' : ''}>
                         `;
                     }
@@ -223,7 +230,7 @@
                 });
             }
 
-            async function submitForm() {
+            async function submitForm(examId) {
                 const form = document.getElementById('registrationForm');
                 const formData = new FormData(form);
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -239,8 +246,10 @@
                         jsonData[key] = value;
                     });
                     
-                    // Add exam ID to the submission
-                    jsonData.vestibularId = new URLSearchParams(window.location.search).get('id');
+                    // Add exam ID to the submission if available
+                    if (examId) {
+                        jsonData.vestibularId = examId;
+                    }
                     
                     // Submit to RESTDB.io
                     const response = await fetch(`${BASE_URL}/inscricoes`, {
@@ -271,3 +280,5 @@
     </script>
 </body>
 </html>
+
+             
