@@ -165,25 +165,39 @@
     const apiKey = '6855efa8bb5ccc0c9cf6d9ad';
     const apiUrl = 'https://vestibulares-302d.restdb.io/rest/formcampos?max=2';
 
-    // Pega o ID da URL
+    // Captura o ID da URL
     const urlParams = new URLSearchParams(window.location.search);
     const vestibularId = urlParams.get('id');
-    document.getElementById('vestibularIdSpan').textContent = vestibularId;
+    const vestibularIdSpan = document.getElementById('vestibularIdSpan');
+    const mensagemDiv = document.getElementById('mensagem');
 
-    // Toggle do menu
+    if (!vestibularId) {
+      vestibularIdSpan.textContent = 'NÃO ENCONTRADO';
+      document.getElementById('formCampo').style.display = 'none';
+      mensagemDiv.className = 'msg error';
+      mensagemDiv.textContent = 'Erro: ID do vestibular não foi informado na URL.';
+      mensagemDiv.style.display = 'block';
+    } else {
+      vestibularIdSpan.textContent = vestibularId;
+    }
+
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('closed');
     }
 
-    // Mostrar/ocultar textarea de opções
     function toggleOpcoes() {
       const tipo = document.getElementById('tipoCampo').value;
       document.getElementById('opcoesBox').style.display = tipo === 'select' ? 'block' : 'none';
     }
 
-    // Enviar campo ao banco
     document.getElementById('formCampo').addEventListener('submit', async function(e) {
       e.preventDefault();
+
+      if (!vestibularId) {
+        mostrarMensagem('ID do vestibular não disponível.', false);
+        return;
+      }
+
       const nomeCampo = document.getElementById('nomeCampo').value.trim();
       const tipoCampo = document.getElementById('tipoCampo').value;
       const opcoesRaw = document.getElementById('opcoes').value.trim();
@@ -222,16 +236,23 @@
     });
 
     function mostrarMensagem(msg, sucesso) {
-      const div = document.getElementById('mensagem');
-      div.textContent = msg;
-      div.className = 'msg ' + (sucesso ? 'success' : 'error');
-      div.style.display = 'block';
-      setTimeout(() => div.style.display = 'none', 3000);
+      mensagemDiv.textContent = msg;
+      mensagemDiv.className = 'msg ' + (sucesso ? 'success' : 'error');
+      mensagemDiv.style.display = 'block';
+      setTimeout(() => mensagemDiv.style.display = 'none', 3000);
     }
   </script>
 
 </body>
 </html>
+
+ 
+
+
+
+
+
+
 
 
  
