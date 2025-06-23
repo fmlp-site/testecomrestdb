@@ -181,7 +181,7 @@
     function carregarVestibulares() {
       vestibularesArea.innerHTML = "<p>Carregando vestibulares...</p>";
 
-      fetch("https://vestibulares-302d.restdb.io/rest/vestibular", {
+      fetch("https://vestibulares-302d.restdb.io/rest/candidatos?max=2", {
         headers: {
           "x-apikey": API_KEY
         }
