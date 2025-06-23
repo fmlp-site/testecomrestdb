@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -21,6 +25,9 @@
       color: white;
       transition: width 0.3s;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .sidebar.closed {
@@ -62,6 +69,27 @@
       display: none;
     }
 
+    .user-info {
+      text-align: center;
+      padding: 15px;
+      border-top: 1px solid #34495e;
+    }
+
+    .user-info img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 2px solid white;
+    }
+
+    .user-info span {
+      display: block;
+      font-size: 14px;
+      color: #ecf0f1;
+    }
+
     .content {
       margin-left: 250px;
       padding: 30px;
@@ -100,7 +128,7 @@
       color: white;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -119,23 +147,31 @@
       <li onclick="carregarVestibulares()"><i class="fas fa-file-alt"></i> <span>Vestibulares Abertos</span></li>
       <li><i class="fas fa-list"></i> <span>Minhas Inscrições</span></li>
     </ul>
+
+    <!-- FOTO DE PERFIL + CPF -->
+    <div class="user-info">
+      <img src="https://i.imgur.com/7k12EPD.png" alt="Perfil" />
+      <span id="cpfUsuario">CPF</span>
+    </div>
   </div>
 
   <!-- CONTEÚDO -->
   <div class="content">
     <h1 id="bemvindo">Olá, seja bem-vindo candidato!</h1>
     <div class="lista-vestibulares" id="vestibularesArea">
-      <!-- Vestibulares serão listados aqui -->
+      <!-- Vestibulares aparecem aqui -->
     </div>
   </div>
 
   <script>
     const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
-    const cpf = new URLSearchParams(window.location.search).get("cpf");
+    const urlParams = new URLSearchParams(window.location.search);
+    const cpf = urlParams.get("cpf");
     const vestibularesArea = document.getElementById("vestibularesArea");
 
     if (cpf) {
       document.getElementById("bemvindo").innerText = `Olá, seja bem-vindo candidato CPF ${cpf}!`;
+      document.getElementById("cpfUsuario").innerText = cpf;
     }
 
     function toggleSidebar() {
@@ -146,7 +182,9 @@
       vestibularesArea.innerHTML = "<p>Carregando vestibulares...</p>";
 
       fetch("https://vestibulares-302d.restdb.io/rest/vestibular", {
-        headers: { "x-apikey": API_KEY }
+        headers: {
+          "x-apikey": API_KEY
+        }
       })
       .then(res => res.json())
       .then(vestibulares => {
@@ -174,14 +212,10 @@
           div.appendChild(botao);
           vestibularesArea.appendChild(div);
         });
-      })
-      .catch(err => {
-        vestibularesArea.innerHTML = "<p style='color:red;'>Erro ao carregar vestibulares.</p>";
-        console.error(err);
       });
     }
 
-    // Carrega automaticamente ao abrir a página
+    // Carregar vestibulares ao entrar
     carregarVestibulares();
   </script>
 
