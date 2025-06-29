@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Inscrições</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <h1>Inscrições do Vestibular</h1>
+  <div id="mensagem"></div>
+  <table id="tabela-inscricoes" style="display:none;">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Curso</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="corpo-tabela"></tbody>
+  </table>
+
+  <script>
+    const apiKey = "6855efa8bb5ccc0c9cf6d9ad"; // 🔁 Substitua pela sua chave da API
+    const baseUrl = "https://vestibulares-302d.restdb.io/rest/inscricoes?max=2"; // 🔁 Substitua pela URL correta da sua coleção
+
+    // Função para obter o ID da URL
+    function obterIdDaUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    async function buscarInscricoesPorVestibular(idVestibular) {
+      const resposta = await fetch(`${baseUrl}?q={"id_vestibular":"${idVestibular}"}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-apikey": apiKey,
+          "cache-control": "no-cache"
+        }
+      });
+
+      if (!resposta.ok) {
+        document.getElementById("mensagem").innerText = "Erro ao buscar inscrições.";
+        return;
+      }
+
+      const dados = await resposta.json();
+      if (dados.length === 0) {
+        document.getElementById("mensagem").innerText = "Nenhuma inscrição encontrada para este vestibular.";
+        return;
+      }
+
+      const tabela = document.getElementById("tabela-inscricoes");
+      const corpoTabela = document.getElementById("corpo-tabela");
+      tabela.style.display = "table";
+
+      dados.forEach(inscricao => {
+        const linha = document.createElement("tr");
+
+        linha.innerHTML = `
+          <td>${inscricao.nome || "-"}</td>
+          <td>${inscricao.cpf || "-"}</td>
+          <td>${inscricao.curso || "-"}</td>
+          <td>${inscricao.status || "Pendente"}</td>
+        `;
+
+        corpoTabela.appendChild(linha);
+      });
+    }
+
+    const idVestibular = obterIdDaUrl();
+    if (idVestibular) {
+      buscarInscricoesPorVestibular(idVestibular);
+    } else {
+      document.getElementById("mensagem").innerText = "ID do vestibular não informado na URL.";
+    }
+  </script>
+
+</body>
+</html>
