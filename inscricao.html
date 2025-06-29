@@ -1,157 +1,158 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Formulário de Inscrição</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <title>Inscrição</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       padding: 30px;
-      background-color: #f5f7fa;
-    }
-
-    h1 {
       color: #2c3e50;
     }
 
-    .formulario {
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    form {
       max-width: 600px;
+      margin: auto;
       background: white;
       padding: 25px;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .campo {
-      margin-bottom: 20px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
 
     label {
       display: block;
+      margin-top: 15px;
       font-weight: bold;
-      margin-bottom: 5px;
-      color: #2c3e50;
     }
 
     input, select {
       width: 100%;
       padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
+      font-size: 16px;
     }
 
     button {
+      margin-top: 25px;
       background-color: #3498db;
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 12px 20px;
       font-size: 16px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
     button:hover {
       background-color: #2980b9;
     }
 
-    .erro {
-      color: red;
+    #mensagem {
       margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
   <h1>Formulário de Inscrição</h1>
-  <div id="formContainer" class="formulario">
-    <div id="formCampos">Carregando campos...</div>
-    <button id="btnEnviar" style="display:none;">Enviar Inscrição</button>
-  </div>
 
-  <div class="erro" id="erroMsg"></div>
+  <form id="formInscricao">
+    <div id="camposArea">
+      <!-- Campos dinâmicos aparecerão aqui -->
+    </div>
+
+    <button type="submit">Enviar Inscrição</button>
+    <div id="mensagem"></div>
+  </form>
 
   <script>
-    const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
-    const BASE_URL = "https://vestibulares-302d.restdb.io/rest/vestibular";
-    const formContainer = document.getElementById("formCampos");
-    const btnEnviar = document.getElementById("btnEnviar");
-    const erroMsg = document.getElementById("erroMsg");
+    const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
+    const FORMULARIO_URL = 'https://vestibulares-302d.restdb.io/rest/formulario';
 
-    // Captura o ID do vestibular da URL
     const urlParams = new URLSearchParams(window.location.search);
-    const vestibularId = urlParams.get("id");
+    const vestibularId = urlParams.get('id');
+
+    const camposArea = document.getElementById('camposArea');
+    const mensagemDiv = document.getElementById('mensagem');
 
     if (!vestibularId) {
-      formContainer.innerHTML = "<p style='color:red;'>Erro: ID do vestibular não encontrado.</p>";
-      btnEnviar.style.display = "none";
+      camposArea.innerHTML = "<p style='color:red;'>Erro: ID do vestibular não informado.</p>";
     } else {
-      fetch(`${BASE_URL}?q={"vestibular_id":"${vestibularId}"}`, {
+      fetch(`${FORMULARIO_URL}?q={"vestibular_id":"${vestibularId}"}`, {
         headers: {
-          "x-apikey": API_KEY
+          'Content-Type': 'application/json',
+          'x-apikey': API_KEY
         }
       })
       .then(res => res.json())
       .then(campos => {
         if (campos.length === 0) {
-          formContainer.innerHTML = "<p>Nenhum campo cadastrado para este vestibular.</p>";
-          return;
+          camposArea.innerHTML = "<p>Nenhum campo cadastrado para este vestibular.</p>";
+        } else {
+          campos.forEach(campo => {
+            const div = document.createElement('div');
+            const label = document.createElement('label');
+            label.textContent = campo.nome_campo;
+            label.htmlFor = campo.nome_campo;
+
+            let input;
+            if (campo.tipo === 'select') {
+              input = document.createElement('select');
+              input.name = campo.nome_campo;
+              input.required = true;
+
+              if (campo.opcoes && Array.isArray(campo.opcoes)) {
+                campo.opcoes.forEach(op => {
+                  const option = document.createElement('option');
+                  option.value = op;
+                  option.textContent = op;
+                  input.appendChild(option);
+                });
+              }
+            } else {
+              input = document.createElement('input');
+              input.type = campo.tipo;
+              input.name = campo.nome_campo;
+              input.required = true;
+            }
+
+            div.appendChild(label);
+            div.appendChild(input);
+            camposArea.appendChild(div);
+          });
         }
-
-        formContainer.innerHTML = ""; // limpa
-
-        campos.forEach(campo => {
-          const div = document.createElement("div");
-          div.className = "campo";
-
-          const label = document.createElement("label");
-          label.textContent = campo.nome_campo;
-
-          let input;
-
-          if (campo.tipo === "select" && campo.opcoes) {
-            input = document.createElement("select");
-            campo.opcoes.forEach(op => {
-              const option = document.createElement("option");
-              option.value = op;
-              option.textContent = op;
-              input.appendChild(option);
-            });
-          } else {
-            input = document.createElement("input");
-            input.type = campo.tipo || "text";
-          }
-
-          input.name = campo.nome_campo;
-          div.appendChild(label);
-          div.appendChild(input);
-          formContainer.appendChild(div);
-        });
-
-        btnEnviar.style.display = "inline-block";
       })
       .catch(err => {
         console.error(err);
-        erroMsg.textContent = "Erro ao buscar os campos do formulário.";
+        camposArea.innerHTML = "<p style='color:red;'>Erro ao carregar os campos do formulário.</p>";
       });
     }
 
-    // Enviar inscrição (teste)
-    btnEnviar.addEventListener("click", () => {
-      const inputs = formContainer.querySelectorAll("input, select");
-      const dados = { vestibular_id: vestibularId };
-
-      inputs.forEach(input => {
-        dados[input.name] = input.value;
-      });
-
-      console.log("Dados do formulário:", dados);
-      alert("Formulário preenchido! Veja o console para os dados.");
+    // Futuramente você pode adicionar o envio dos dados aqui:
+    document.getElementById('formInscricao').addEventListener('submit', function(e) {
+      e.preventDefault();
+      mensagemDiv.textContent = "📨 Envio do formulário será implementado...";
     });
   </script>
 
 </body>
 </html>
+
+
+
+
+  
+   
+  
