@@ -80,12 +80,15 @@
   <script>
     const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
     const FORMULARIO_URL = 'https://vestibulares-302d.restdb.io/rest/formcampos';
+    const INSCRICOES_URL = 'https://vestibulares-302d.restdb.io/rest/inscricoes';
 
     const urlParams = new URLSearchParams(window.location.search);
     const vestibularId = urlParams.get('id');
 
     const camposArea = document.getElementById('camposArea');
     const mensagemDiv = document.getElementById('mensagem');
+
+    let camposForm = [];
 
     if (!vestibularId) {
       camposArea.innerHTML = "<p style='color:red;'>Erro: ID do vestibular não informado.</p>";
@@ -98,6 +101,7 @@
       })
       .then(res => res.json())
       .then(campos => {
+        camposForm = campos;
         if (campos.length === 0) {
           camposArea.innerHTML = "<p>Nenhum campo cadastrado para este vestibular.</p>";
         } else {
@@ -140,19 +144,48 @@
       });
     }
 
-    // Futuramente você pode adicionar o envio dos dados aqui:
-    document.getElementById('formInscricao').addEventListener('submit', function(e) {
+    // SUBMISSÃO DO FORMULÁRIO
+    document.getElementById('formInscricao').addEventListener('submit', async function(e) {
       e.preventDefault();
-      mensagemDiv.textContent = "📨 Envio do formulário será implementado...";
+
+      const formData = new FormData(this);
+      const dadosInscricao = {};
+
+      for (const [chave, valor] of formData.entries()) {
+        dadosInscricao[chave] = valor;
+      }
+
+      const payload = {
+        vestibular_id: vestibularId,
+        dados: dadosInscricao,
+        criado_em: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch(INSCRICOES_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-apikey': API_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          mensagemDiv.style.color = 'green';
+          mensagemDiv.textContent = '✅ Inscrição realizada com sucesso!';
+          this.reset();
+        } else {
+          mensagemDiv.style.color = 'red';
+          mensagemDiv.textContent = 'Erro ao enviar inscrição.';
+        }
+      } catch (err) {
+        console.error(err);
+        mensagemDiv.style.color = 'red';
+        mensagemDiv.textContent = 'Erro de conexão ao enviar inscrição.';
+      }
     });
   </script>
 
 </body>
 </html>
-
-
-
-
-  
-   
-  
