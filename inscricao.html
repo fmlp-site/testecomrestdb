@@ -1,15 +1,15 @@
-
-           <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Inscrição no Vestibular</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Formulário de Inscrição</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f7fa;
       padding: 30px;
+      background-color: #f5f7fa;
     }
 
     h1 {
@@ -17,22 +17,22 @@
     }
 
     .formulario {
-      background-color: white;
+      max-width: 600px;
+      background: white;
       padding: 25px;
       border-radius: 10px;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .campo {
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     label {
       display: block;
-      margin-bottom: 5px;
       font-weight: bold;
+      margin-bottom: 5px;
+      color: #2c3e50;
     }
 
     input, select {
@@ -40,61 +40,56 @@
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
     }
 
     button {
-      margin-top: 20px;
-      padding: 12px 25px;
       background-color: #3498db;
       color: white;
       border: none;
+      padding: 12px 24px;
+      font-size: 16px;
       border-radius: 6px;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
     button:hover {
       background-color: #2980b9;
     }
 
-    .mensagem {
+    .erro {
+      color: red;
       margin-top: 20px;
-      padding: 10px;
-      display: none;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-
-    .mensagem.ok {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .mensagem.erro {
-      background-color: #f8d7da;
-      color: #721c24;
     }
   </style>
 </head>
 <body>
 
   <h1>Formulário de Inscrição</h1>
-  <div class="formulario" id="formulario">
-    <form id="formInscricao"></form>
-    <div class="mensagem" id="mensagem"></div>
+  <div id="formContainer" class="formulario">
+    <div id="formCampos">Carregando campos...</div>
+    <button id="btnEnviar" style="display:none;">Enviar Inscrição</button>
   </div>
+
+  <div class="erro" id="erroMsg"></div>
 
   <script>
     const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
+    const BASE_URL = "https://vestibulares-302d.restdb.io/rest/vestibular";
+    const formContainer = document.getElementById("formCampos");
+    const btnEnviar = document.getElementById("btnEnviar");
+    const erroMsg = document.getElementById("erroMsg");
+
+    // Captura o ID do vestibular da URL
     const urlParams = new URLSearchParams(window.location.search);
     const vestibularId = urlParams.get("id");
-    const cpf = urlParams.get("cpf");
-    const form = document.getElementById("formInscricao");
-    const mensagem = document.getElementById("mensagem");
 
-    if (!vestibularId || !cpf) {
-      document.body.innerHTML = "<h2>Erro: CPF ou ID do vestibular não informado na URL.</h2>";
+    if (!vestibularId) {
+      formContainer.innerHTML = "<p style='color:red;'>Erro: ID do vestibular não encontrado.</p>";
+      btnEnviar.style.display = "none";
     } else {
-      fetch(`https://vestibulares-302d.restdb.io/rest/formcampos?q={"vestibular_id":"${vestibularId}"}`, {
+      fetch(`${BASE_URL}?q={"vestibular_id":"${vestibularId}"}`, {
         headers: {
           "x-apikey": API_KEY
         }
@@ -102,9 +97,11 @@
       .then(res => res.json())
       .then(campos => {
         if (campos.length === 0) {
-          form.innerHTML = "<p>Nenhum campo de formulário encontrado para este vestibular.</p>";
+          formContainer.innerHTML = "<p>Nenhum campo cadastrado para este vestibular.</p>";
           return;
         }
+
+        formContainer.innerHTML = ""; // limpa
 
         campos.forEach(campo => {
           const div = document.createElement("div");
@@ -112,12 +109,12 @@
 
           const label = document.createElement("label");
           label.textContent = campo.nome_campo;
-          label.setAttribute("for", campo.nome_campo);
 
           let input;
-          if (campo.tipo === "select") {
+
+          if (campo.tipo === "select" && campo.opcoes) {
             input = document.createElement("select");
-            (campo.opcoes || []).forEach(op => {
+            campo.opcoes.forEach(op => {
               const option = document.createElement("option");
               option.value = op;
               option.textContent = op;
@@ -129,60 +126,31 @@
           }
 
           input.name = campo.nome_campo;
-          input.required = true;
-
           div.appendChild(label);
           div.appendChild(input);
-          form.appendChild(div);
+          formContainer.appendChild(div);
         });
 
-        const btn = document.createElement("button");
-        btn.type = "submit";
-        btn.textContent = "Enviar Inscrição";
-        form.appendChild(btn);
-      });
-
-      form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const dados = {
-          vestibular_id: vestibularId,
-          cpf: cpf,
-          enviado_em: new Date().toISOString()
-        };
-
-        const inputs = form.querySelectorAll("input, select");
-        inputs.forEach(input => {
-          dados[input.name] = input.value;
-        });
-
-        fetch("https://vestibulares-302d.restdb.io/rest/inscricoes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-apikey": API_KEY
-          },
-          body: JSON.stringify(dados)
-        })
-        .then(res => {
-          if (res.ok) {
-            mensagem.className = "mensagem ok";
-            mensagem.textContent = "Inscrição enviada com sucesso!";
-            mensagem.style.display = "block";
-            form.reset();
-          } else {
-            mensagem.className = "mensagem erro";
-            mensagem.textContent = "Erro ao enviar inscrição.";
-            mensagem.style.display = "block";
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          mensagem.className = "mensagem erro";
-          mensagem.textContent = "Erro na conexão com o servidor.";
-          mensagem.style.display = "block";
-        });
+        btnEnviar.style.display = "inline-block";
+      })
+      .catch(err => {
+        console.error(err);
+        erroMsg.textContent = "Erro ao buscar os campos do formulário.";
       });
     }
+
+    // Enviar inscrição (teste)
+    btnEnviar.addEventListener("click", () => {
+      const inputs = formContainer.querySelectorAll("input, select");
+      const dados = { vestibular_id: vestibularId };
+
+      inputs.forEach(input => {
+        dados[input.name] = input.value;
+      });
+
+      console.log("Dados do formulário:", dados);
+      alert("Formulário preenchido! Veja o console para os dados.");
+    });
   </script>
 
 </body>
