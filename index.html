@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Comvest</title>
+  <title>Vestibulares</title>
   <style>
     body {
       margin: 0;
@@ -23,20 +23,6 @@
     header h1 {
       font-size: 24px;
       color: #d00000;
-    }
-
-    nav {
-      display: flex;
-      gap: 10px;
-    }
-
-    nav a {
-      text-decoration: none;
-      background: #d00000;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 4px;
-      font-weight: bold;
     }
 
     .busca {
@@ -68,9 +54,7 @@
       cursor: pointer;
     }
 
-    .btn-concurso { background: #f57c00; }
     .btn-vestibular { background: #1976d2; }
-    .btn-avaliacoes { background: #009688; }
 
     .cards-container {
       display: flex;
@@ -83,7 +67,7 @@
     .card {
       background: white;
       width: 350px;
-      border-left: 6px solid #f57c00;
+      border-left: 6px solid #1976d2;
       padding: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       display: flex;
@@ -97,23 +81,9 @@
       color: #333;
     }
 
-    .card .orgao {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
     .card .info {
       font-size: 14px;
       margin: 5px 0;
-    }
-
-    .badge {
-      background: #4caf50;
-      color: white;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      margin-right: 5px;
     }
 
     .inscricoes {
@@ -122,7 +92,7 @@
     }
 
     .btn-saiba {
-      background: #f57c00;
+      background: #1976d2;
       color: white;
       padding: 10px;
       text-align: center;
@@ -131,21 +101,12 @@
       margin-top: 10px;
       border-radius: 4px;
     }
-
-    .vestibular {
-      border-left-color: #1976d2;
-    }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Comvest</h1>
-    <nav>
-      <a href="#">Institucional</a>
-      <a href="#">Portal</a>
-      <a href="#">Área do Candidato</a>
-    </nav>
+    <h1>Fundação Vestibular</h1>
   </header>
 
   <div class="busca">
@@ -153,52 +114,49 @@
   </div>
 
   <div class="categorias">
-    <button class="btn-concurso">CONCURSOS</button>
     <button class="btn-vestibular">VESTIBULARES</button>
-    <button class="btn-avaliacoes">AVALIAÇÕES</button>
   </div>
 
-  <div class="cards-container">
-
-    <!-- CARD 1 -->
-    <div class="card">
-      <span class="orgao">MINISTÉRIO PÚBLICO/SP</span>
-      <h3>AUXILIAR DE PROMOTORIA III - MOTORISTA</h3>
-      <div class="info">Ensino Fundamental</div>
-      <div class="info"><strong>Salário:</strong> R$ 5.643,14</div>
-      <div class="inscricoes">
-        <span class="badge">Vagas: 5</span> 
-        <strong>Inscrições:</strong> 04/07 - 04/08
-      </div>
-      <a href="#" class="btn-saiba">SAIBA MAIS</a>
-    </div>
-
-    <!-- CARD 2 -->
-    <div class="card">
-      <span class="orgao">CÂMARA DE TATUÍ</span>
-      <h3>CONCURSO PÚBLICO 1/2025</h3>
-      <div class="info">Ensino Médio e Superior</div>
-      <div class="info"><strong>Faixa Salarial:</strong> R$ 3.955,36 - R$ 11.289,97</div>
-      <div class="inscricoes">
-        <span class="badge">Vagas: 9</span> 
-        <strong>Inscrições:</strong> 04/06 - 08/07
-      </div>
-      <a href="#" class="btn-saiba">SAIBA MAIS</a>
-    </div>
-
-    <!-- CARD 3 -->
-    <div class="card vestibular">
-      <span class="orgao">UNIVERSIDADE ESTADUAL PAULISTA - UNESP</span>
-      <h3>VESTIBULAR UNESP 2026</h3>
-      <div class="info"><strong>Inscrições:</strong> 04/09 - 08/10</div>
-      <div class="info">
-        A primeira fase será em 2 de novembro. Segunda fase em dezembro.
-        Oferecido em 24 cidades como Araçatuba, Bauru, Marília, etc.
-      </div>
-      <a href="#" class="btn-saiba">SAIBA MAIS</a>
-    </div>
-
+  <div class="cards-container" id="cards-container">
+    <!-- Vestibulares virão aqui -->
   </div>
+
+  <script>
+    const API_URL = "https://vestibulares-302d.restdb.io/rest/vestibular?max=100";
+    const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
+
+    async function carregarVestibulares() {
+      try {
+        const resposta = await fetch(API_URL, {
+          headers: {
+            "x-apikey": API_KEY,
+            "Content-Type": "application/json"
+          }
+        });
+
+        const vestibulares = await resposta.json();
+        const container = document.getElementById("cards-container");
+
+        vestibulares.forEach(v => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${v.nome}</h3>
+            <div class="inscricoes">
+              <strong>Inscrições:</strong> ${v.inscricao_inicio || '---'} até ${v.inscricao_fim || '---'}
+            </div>
+            <a href="#" class="btn-saiba">SAIBA MAIS</a>
+          `;
+          container.appendChild(card);
+        });
+      } catch (erro) {
+        console.error("Erro ao carregar vestibulares:", erro);
+        document.getElementById("cards-container").innerHTML = "<p>Erro ao carregar vestibulares.</p>";
+      }
+    }
+
+    carregarVestibulares();
+  </script>
 
 </body>
 </html>
