@@ -106,7 +106,7 @@
 <body>
 
   <header>
-    <h1>Comvest</h1>
+    <h1>Fundação Vestibular</h1>
   </header>
 
   <div class="busca">
@@ -145,7 +145,7 @@
             <div class="inscricoes">
               <strong>Inscrições:</strong> ${v.inscricao_inicio || '---'} até ${v.inscricao_fim || '---'}
             </div>
-            <a href="#" class="btn-saiba">SAIBA MAIS</a>
+            <a href="detalhes.html?id=${v._id}" class="btn-saiba">SAIBA MAIS</a>
           `;
           container.appendChild(card);
         });
