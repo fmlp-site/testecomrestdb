@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalhes do Vestibular</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      background: white;
+      margin: 40px auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+    }
+
+    .titulo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #d35400;
+      margin-bottom: 10px;
+    }
+
+    .subtitulo {
+      font-size: 18px;
+      color: #444;
+    }
+
+    .inscricoes {
+      margin: 20px 0;
+    }
+
+    .inscricoes span {
+      font-weight: bold;
+    }
+
+    .descricao {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .botoes {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .botao {
+      flex: 1;
+      background: #f57c00;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .inscrever {
+      float: right;
+      background: #e67e22;
+      color: white;
+      padding: 12px 18px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .inscrever:hover, .botao:hover {
+      opacity: 0.9;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container" id="detalhes-container">
+    <div id="loading">Carregando dados...</div>
+  </div>
+
+  <script>
+    const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
+    const API_URL = "https://vestibulares-302d.restdb.io/rest/vestibular/";
+
+    function getID() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    async function carregarDetalhes() {
+      const id = getID();
+      const container = document.getElementById("detalhes-container");
+
+      if (!id) {
+        container.innerHTML = "<p>ID do vestibular não informado.</p>";
+        return;
+      }
+
+      try {
+        const resposta = await fetch(API_URL + id, {
+          headers: {
+            "x-apikey": API_KEY,
+            "Content-Type": "application/json"
+          }
+        });
+
+        const dados = await resposta.json();
+
+        container.innerHTML = `
+          <div class="titulo">CONCURSO | ${dados.nome}</div>
+          <button class="inscrever">INSCREVA-SE</button>
+
+          <div class="inscricoes">
+            <span>INSCRIÇÕES:</span>
+            🟢 ${dados.inscricao_inicio || '---'} 🔴 ${dados.inscricao_fim || '---'}
+          </div>
+
+          <div class="descricao">${dados.descricao || 'Nenhuma descrição informada.'}</div>
+
+          <div class="botoes">
+            <div class="botao">EDITAIS E DOCUMENTOS</div>
+            <div class="botao">PAGAMENTO</div>
+            <div class="botao">ENVIO DE DOCUMENTOS</div>
+          </div>
+        `;
+      } catch (erro) {
+        console.error(erro);
+        container.innerHTML = "<p>Erro ao carregar os dados do vestibular.</p>";
+      }
+    }
+
+    carregarDetalhes();
+  </script>
+</body>
+</html>
