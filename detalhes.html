@@ -1,140 +1,184 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detalhes do Vestibular</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 20px;
       background: #f4f4f4;
-      margin: 0;
     }
 
-    .container {
-      max-width: 900px;
+    h1 {
+      color: #1976d2;
+    }
+
+    form {
       background: white;
-      margin: 40px auto;
-      padding: 30px;
-      border: 1px solid #ddd;
+      padding: 20px;
+      max-width: 600px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .titulo {
-      font-size: 22px;
+    label {
+      display: block;
+      margin-top: 15px;
       font-weight: bold;
-      color: #d35400;
-      margin-bottom: 10px;
+      color: #333;
     }
 
-    .subtitulo {
-      font-size: 18px;
-      color: #444;
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
-    .inscricoes {
-      margin: 20px 0;
-    }
-
-    .inscricoes span {
-      font-weight: bold;
-    }
-
-    .descricao {
-      font-size: 15px;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
-
-    .botoes {
-      display: flex;
-      gap: 20px;
+    button {
       margin-top: 20px;
-    }
-
-    .botao {
-      flex: 1;
-      background: #f57c00;
+      background-color: #1976d2;
       color: white;
-      text-align: center;
-      padding: 15px;
-      font-weight: bold;
       border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
-    .inscrever {
-      float: right;
-      background: #e67e22;
-      color: white;
-      padding: 12px 18px;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
+    button:hover {
+      background-color: #155a9c;
     }
-
-    .inscrever:hover, .botao:hover {
-      opacity: 0.9;
-    }
-
   </style>
 </head>
 <body>
 
-  <div class="container" id="detalhes-container">
-    <div id="loading">Carregando dados...</div>
-  </div>
+  <h1>Formulário de Inscrição</h1>
+
+  <form id="form-inscricao">
+    <!-- Campos serão carregados aqui -->
+    <p>Carregando campos do formulário...</p>
+  </form>
 
   <script>
     const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
-    const API_URL = "https://vestibulares-302d.restdb.io/rest/vestibular/";
+    const BASE_URL = "https://vestibulares-302d.restdb.io/rest/Formcampos";
 
-    function getID() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("id");
+    // Função para pegar parâmetro id da URL
+    function getIdVestibular() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
     }
 
-    async function carregarDetalhes() {
-      const id = getID();
-      const container = document.getElementById("detalhes-container");
+    // Monta campo do formulário dinamicamente
+    function criarCampo(field) {
+      const wrapper = document.createElement('div');
 
-      if (!id) {
-        container.innerHTML = "<p>ID do vestibular não informado.</p>";
+      const label = document.createElement('label');
+      label.textContent = field.nome_campo;
+      label.htmlFor = field.nome_campo.toLowerCase().replace(/\s+/g, '_');
+      wrapper.appendChild(label);
+
+      let input;
+
+      switch(field.tipo.toLowerCase()) {
+        case 'text':
+          input = document.createElement('input');
+          input.type = 'text';
+          break;
+        case 'number':
+          input = document.createElement('input');
+          input.type = 'number';
+          break;
+        case 'date':
+          input = document.createElement('input');
+          input.type = 'date';
+          break;
+        case 'textarea':
+          input = document.createElement('textarea');
+          break;
+        case 'select':
+          input = document.createElement('select');
+          if (field.opcoes) {
+            // As opções devem vir em string separadas por vírgula
+            const opcoesArray = field.opcoes.split(',').map(o => o.trim());
+            opcoesArray.forEach(op => {
+              const option = document.createElement('option');
+              option.value = op;
+              option.textContent = op;
+              input.appendChild(option);
+            });
+          }
+          break;
+        default:
+          // Caso não reconheça, cria um input text padrão
+          input = document.createElement('input');
+          input.type = 'text';
+      }
+
+      input.id = label.htmlFor;
+      input.name = label.htmlFor;
+      wrapper.appendChild(input);
+
+      return wrapper;
+    }
+
+    async function carregarCamposFormulario() {
+      const idVestibular = getIdVestibular();
+      if (!idVestibular) {
+        document.getElementById('form-inscricao').innerHTML = '<p>ID do vestibular não informado na URL.</p>';
         return;
       }
 
       try {
-        const resposta = await fetch(API_URL + id, {
+        // Busca os campos do formulário filtrando por id_vestibular
+        const filtro = encodeURIComponent(`{"id_vestibular":"${idVestibular}"}`);
+        const resposta = await fetch(`${BASE_URL}?q=${filtro}`, {
           headers: {
             "x-apikey": API_KEY,
             "Content-Type": "application/json"
           }
         });
 
-        const dados = await resposta.json();
+        const campos = await resposta.json();
 
-        container.innerHTML = `
-          <div class="titulo">CONCURSO | ${dados.nome}</div>
-          <button class="inscrever">INSCREVA-SE</button>
+        const form = document.getElementById('form-inscricao');
+        form.innerHTML = ''; // Limpa mensagem carregando
 
-          <div class="inscricoes">
-            <span>INSCRIÇÕES:</span>
-            🟢 ${dados.inscricao_inicio || '---'} 🔴 ${dados.inscricao_fim || '---'}
-          </div>
+        if (campos.length === 0) {
+          form.innerHTML = '<p>Nenhum campo de formulário encontrado para este vestibular.</p>';
+          return;
+        }
 
-          <div class="descricao">${dados.descricao || 'Nenhuma descrição informada.'}</div>
+        // Cria campos dinamicamente
+        campos.forEach(campo => {
+          const campoElemento = criarCampo(campo);
+          form.appendChild(campoElemento);
+        });
 
-          <div class="botoes">
-            <div class="botao">EDITAIS E DOCUMENTOS</div>
-            <div class="botao">PAGAMENTO</div>
-            <div class="botao">ENVIO DE DOCUMENTOS</div>
-          </div>
-        `;
-      } catch (erro) {
-        console.error(erro);
-        container.innerHTML = "<p>Erro ao carregar os dados do vestibular.</p>";
+        // Botão de submit
+        const btn = document.createElement('button');
+        btn.type = 'submit';
+        btn.textContent = 'Enviar Inscrição';
+        form.appendChild(btn);
+
+        // Aqui você pode colocar o handler do submit, se quiser salvar a inscrição
+
+      } catch (error) {
+        console.error('Erro ao carregar campos do formulário:', error);
+        document.getElementById('form-inscricao').innerHTML = '<p>Erro ao carregar campos do formulário.</p>';
       }
     }
 
-    carregarDetalhes();
+    carregarCamposFormulario();
   </script>
 </body>
 </html>
