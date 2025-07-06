@@ -11,16 +11,17 @@
       background: #f4f4f4;
     }
 
-    h1 {
+    h1, h2 {
       color: #1976d2;
     }
 
-    form {
+    #detalhes, #form-container {
       background: white;
       padding: 20px;
       max-width: 600px;
       border-radius: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
     }
 
     label {
@@ -61,24 +62,69 @@
 </head>
 <body>
 
-  <h1>Formulário de Inscrição</h1>
+  <h1>Detalhes do Vestibular</h1>
 
-  <form id="form-inscricao">
-    <!-- Campos serão carregados aqui -->
-    <p>Carregando campos do formulário...</p>
-  </form>
+  <div id="detalhes">
+    <p>Carregando detalhes do vestibular...</p>
+  </div>
+
+  <button id="btn-inscrever" style="display:none;">Inscreva-se</button>
+
+  <div id="form-container" style="display:none;">
+    <h2>Formulário de Inscrição</h2>
+    <form id="form-inscricao">
+      <!-- Campos do formulário aparecerão aqui -->
+      <p>Carregando campos do formulário...</p>
+    </form>
+  </div>
 
   <script>
     const API_KEY = "6855efa8bb5ccc0c9cf6d9ad";
-    const BASE_URL = "https://vestibulares-302d.restdb.io/rest/Formcampos";
+    const VESTIBULAR_URL = "https://vestibulares-302d.restdb.io/rest/vestibular";
+    const FORM_CAMPOS_URL = "https://vestibulares-302d.restdb.io/rest/Formcampos";
 
-    // Função para pegar parâmetro id da URL
+    // Pega id da URL
     function getIdVestibular() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('id');
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
     }
 
-    // Monta campo do formulário dinamicamente
+    // Mostrar detalhes do vestibular
+    async function carregarDetalhes() {
+      const id = getIdVestibular();
+      if (!id) {
+        document.getElementById('detalhes').innerHTML = '<p>ID do vestibular não fornecido na URL.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${VESTIBULAR_URL}/${id}`, {
+          headers: {
+            "x-apikey": API_KEY
+          }
+        });
+
+        if (!res.ok) throw new Error('Vestibular não encontrado');
+
+        const v = await res.json();
+
+        const detalhesDiv = document.getElementById('detalhes');
+        detalhesDiv.innerHTML = `
+          <h2>${v.nome}</h2>
+          <p><strong>Inscrições:</strong> ${v.inscricao_inicio || '---'} até ${v.inscricao_fim || '---'}</p>
+          <p><strong>Descrição:</strong> ${v.descricao || 'Sem descrição disponível.'}</p>
+        `;
+
+        // Mostrar botão inscrever
+        const btn = document.getElementById('btn-inscrever');
+        btn.style.display = 'inline-block';
+
+      } catch (error) {
+        document.getElementById('detalhes').innerHTML = `<p>Erro ao carregar detalhes: ${error.message}</p>`;
+      }
+    }
+
+    // Criar campo do formulário baseado no tipo
     function criarCampo(field) {
       const wrapper = document.createElement('div');
 
@@ -108,7 +154,6 @@
         case 'select':
           input = document.createElement('select');
           if (field.opcoes) {
-            // As opções devem vir em string separadas por vírgula
             const opcoesArray = field.opcoes.split(',').map(o => o.trim());
             opcoesArray.forEach(op => {
               const option = document.createElement('option');
@@ -119,7 +164,6 @@
           }
           break;
         default:
-          // Caso não reconheça, cria um input text padrão
           input = document.createElement('input');
           input.type = 'text';
       }
@@ -131,54 +175,68 @@
       return wrapper;
     }
 
-    async function carregarCamposFormulario() {
+    // Carregar campos do formulário e mostrar o form
+    async function carregarFormulario() {
       const idVestibular = getIdVestibular();
-      if (!idVestibular) {
-        document.getElementById('form-inscricao').innerHTML = '<p>ID do vestibular não informado na URL.</p>';
-        return;
-      }
+      const formContainer = document.getElementById('form-container');
+      const form = document.getElementById('form-inscricao');
+
+      form.innerHTML = '<p>Carregando campos do formulário...</p>';
+      formContainer.style.display = 'block';
 
       try {
-        // Busca os campos do formulário filtrando por id_vestibular
         const filtro = encodeURIComponent(`{"id_vestibular":"${idVestibular}"}`);
-        const resposta = await fetch(`${BASE_URL}?q=${filtro}`, {
+        const res = await fetch(`${FORM_CAMPOS_URL}?q=${filtro}`, {
           headers: {
             "x-apikey": API_KEY,
             "Content-Type": "application/json"
           }
         });
 
-        const campos = await resposta.json();
+        if (!res.ok) throw new Error('Erro ao carregar campos do formulário');
 
-        const form = document.getElementById('form-inscricao');
-        form.innerHTML = ''; // Limpa mensagem carregando
+        const campos = await res.json();
 
         if (campos.length === 0) {
           form.innerHTML = '<p>Nenhum campo de formulário encontrado para este vestibular.</p>';
           return;
         }
 
-        // Cria campos dinamicamente
+        form.innerHTML = ''; // limpa o carregando
+
         campos.forEach(campo => {
-          const campoElemento = criarCampo(campo);
-          form.appendChild(campoElemento);
+          const campoEl = criarCampo(campo);
+          form.appendChild(campoEl);
         });
 
-        // Botão de submit
+        // Botão enviar
         const btn = document.createElement('button');
         btn.type = 'submit';
         btn.textContent = 'Enviar Inscrição';
         form.appendChild(btn);
 
-        // Aqui você pode colocar o handler do submit, se quiser salvar a inscrição
+        // Você pode implementar o envio do form aqui, se quiser
+        form.onsubmit = e => {
+          e.preventDefault();
+          alert('Função para enviar inscrição ainda não implementada.');
+        };
 
       } catch (error) {
-        console.error('Erro ao carregar campos do formulário:', error);
-        document.getElementById('form-inscricao').innerHTML = '<p>Erro ao carregar campos do formulário.</p>';
+        form.innerHTML = `<p>Erro ao carregar formulário: ${error.message}</p>`;
       }
     }
 
-    carregarCamposFormulario();
+    // Ao clicar no botão, carregar o formulário e esconder detalhes e botão
+    document.getElementById('btn-inscrever').addEventListener('click', () => {
+      document.getElementById('detalhes').style.display = 'none';
+      document.getElementById('btn-inscrever').style.display = 'none';
+      carregarFormulario();
+    });
+
+    // Carrega os detalhes ao abrir a página
+    carregarDetalhes();
+
   </script>
+
 </body>
 </html>
