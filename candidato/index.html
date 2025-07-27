@@ -1,153 +1,206 @@
-Siga o design do codigo abaixo <html class="scroll-smooth" lang="pt-BR">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>
-   Ambiente de Desenvolvimento
-  </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema do Candidato</title>
   <style>
-   /* Custom scrollbar for the left menu */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: #a0aec0;
-      border-radius: 3px;
-    }
+    body { display: flex; font-family: Arial, sans-serif; margin: 0; }
+    .left { width: 60%; padding: 20px; }
+    .right { width: 40%; padding: 20px; background: #f0f0f0; }
+    .form-box { margin-bottom: 20px; }
+    .hidden { display: none; }
+    .nav { margin-bottom: 20px; }
+    .btn { margin-right: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; cursor: pointer; }
   </style>
- </head>
- <body class="bg-[#eaf2fa] font-sans text-[13px] text-[#000000]">
-  <div class="max-w-[1024px] mx-auto border border-gray-300 bg-white">
-   <!-- Header -->
-   <header class="flex items-center bg-[#d9e8fb] border-b border-gray-300 px-2 py-1 relative select-none">
-    <div class="flex items-center gap-2">
-     <img alt="Logo UFRGS COPERSE - blue and white logo with flame icon" class="block" height="60" src="https://storage.googleapis.com/a1aa/image/ef63bc8a-156e-4c00-224e-44146b3a788e.jpg" width="60"/>
-     <div class="text-[10px] leading-[1.1] text-[#a0a0a0] font-normal select-text">
-      COMISSÃO
-      <br/>
-      PERMANENTE
-      <br/>
-      DE SELEÇÃO
-     </div>
-    </div>
-    <h1 class="font-extrabold text-[16px] text-[#1f6e1f] ml-4 select-text">
-     Ambiente de Desenvolvimento
-    </h1>
-    <div class="absolute right-2 top-1 flex items-center gap-1 text-[11px] font-normal text-black select-text">
-     <input aria-label="Usuário" class="border border-gray-300 rounded px-1 py-[2px] w-[120px]" type="text" value=""/>
-     <span class="cursor-pointer hover:underline">
-      Sair
-     </span>
-    </div>
-    <button aria-label="Expandir" class="absolute right-0 top-0 w-6 h-6 text-[#1f6e1f] hover:text-[#0f3f0f] focus:outline-none" title="Expandir">
-     <i class="fas fa-expand-arrows-alt">
-     </i>
-    </button>
-   </header>
-   <div class="flex min-h-[300px]">
-    <!-- Left menu -->
-    <nav aria-label="Portal do Candidato" class="w-[140px] border-r border-gray-300 bg-white text-[11px] text-[#000000] select-text">
-     <div class="border-b border-gray-300 px-2 py-1 font-bold">
-      Portal do Candidato
-     </div>
-     <ul class="px-2 py-1 space-y-1">
-      <li>
-       <a class="block text-[#000000] hover:underline" href="#">
-        Início
-       </a>
-      </li>
-      <li>
-       <a class="block text-[#d40000] font-normal" href="#">
-        Fazer Inscrição
-       </a>
-      </li>
-      <li>
-       <a class="block text-[#000000] hover:underline" href="#">
-        Consultar Inscrição
-       </a>
-      </li>
-      <li>
-       <a class="block text-[#000000] hover:underline" href="#">
-        Consultar Locais de prova
-       </a>
-      </li>
-      <li>
-       <a class="block text-[#000000] hover:underline" href="#">
-        Consultar desempenhos
-       </a>
-      </li>
-      <li>
-       <a class="block text-[#000000] hover:underline" href="#">
-        Sair
-       </a>
-      </li>
-     </ul>
-    </nav>
-    <!-- Main content -->
-    <main class="flex-1 p-3 border-l border-gray-300 bg-white">
-     <form>
-      <fieldset class="border border-gray-300 rounded p-3">
-       <legend class="font-semibold text-[12px] text-[#000000] select-text">
-        Selecionar a inscrição
-       </legend>
-       <div class="mb-3 border border-[#a0c4e8] bg-[#eaf2fa] text-[#3a5f9e] text-[12px] rounded p-3 leading-[1.3]">
-        Selecione abaixo qual o
-        <strong>
-         concurso
-        </strong>
-        e
-        <strong>
-         inscrição
-        </strong>
-        que você deseja acessar.
-        <br/>
-        Cada tipo de inscrição (vestibular, sisu, etc) terá uma lista de serviços diferentes associados.
-       </div>
-       <div class="mb-3 border border-[#f0c27b] bg-[#fff4d1] text-[#b36b00] text-[12px] rounded p-3 leading-[1.3]">
-        A partir de 2016, todos as novas inscrições para
-        <strong>
-         VESTIBULAR
-        </strong>
-        e
-        <strong>
-         SISU
-        </strong>
-        estarão disponíveis neste portal.
-       </div>
-       <div class="grid grid-cols-[140px_1fr] gap-x-2 gap-y-2 items-center text-[12px] font-semibold text-[#000000] mb-2 select-text">
-        <label class="text-right" for="processos-select">
-         Processos Seletivos
-        </label>
-        <select class="border border-gray-400 rounded px-2 py-1 w-full max-w-[400px] text-[12px]" id="processos-select" name="processos">
-         <option>
-          -- Selecione --
-         </option>
-         <option>
-          2018 - CV 2018 - Ciências Jurídicas e Sociais - Direito - Noturno - Inscrição
-         </option>
-         <option>
-          2016 - CV 2016 - Engenharia Civil - Inscrição
-         </option>
-        </select>
-       </div>
-       <div class="grid grid-cols-[140px_1fr] gap-x-2 gap-y-2 items-center text-[12px] font-semibold text-[#000000] select-text">
-        <label class="text-right" for="processos-finalizados-select">
-         Processos Seletivos (Finalizados)
-        </label>
-        <select class="border border-gray-400 rounded px-2 py-1 w-full max-w-[400px] text-[12px]" id="processos-finalizados-select" name="processos-finalizados">
-         <option>
-          -- Selecione --
-         </option>
-        </select>
-       </div>
-      </fieldset>
-     </form>
-    </main>
-   </div>
+</head>
+<body>
+
+<div class="left">
+  <div class="nav">
+    <button class="btn" onclick="mostrar('cadastro')">Cadastro</button>
+    <button class="btn" onclick="mostrar('login')">Login</button>
+    <button class="btn" onclick="mostrar('inicio')">Início</button>
+    <button class="btn" onclick="mostrar('inscricao')">Fazer Inscrição</button>
   </div>
- </body>
+
+  <div id="cadastro" class="form-box hidden">
+    <h2>Cadastro do Candidato</h2>
+    <input id="nome" placeholder="Nome" /><br />
+    <input id="email" placeholder="Email" /><br />
+    <input id="senha" placeholder="Senha" type="password" /><br />
+    <button onclick="cadastrar()">Cadastrar</button>
+  </div>
+
+  <div id="login" class="form-box hidden">
+    <h2>Login do Candidato</h2>
+    <input id="loginEmail" placeholder="Email" /><br />
+    <input id="loginSenha" placeholder="Senha" type="password" /><br />
+    <button onclick="logar()">Entrar</button>
+  </div>
+
+  <div id="inicio" class="form-box">
+    <h2>Bem-vindo!</h2>
+    <p id="boasvindas">Use os botões acima para navegar.</p>
+  </div>
+
+  <div id="inscricao" class="form-box hidden">
+    <h2>Fazer Inscrição</h2>
+    <label for="selectVest">Escolha um Vestibular:</label><br />
+    <select id="selectVest" onchange="carregarCamposInscricao()">
+      <option>Carregando...</option>
+    </select>
+    <form id="formInscricao" onsubmit="enviarInscricao(event)"></form>
+  </div>
+</div>
+
+<div class="right">
+  <h3>Novidades</h3>
+  <div id="novidades">Carregando novidades...</div>
+</div>
+
+<script>
+  const API_KEY = 'SUA_API_KEY';
+  const DB_URL = 'https://SEU_DATABASE_ID.restdb.io/rest';
+
+  let candidatoLogado = null;
+
+  function mostrar(secao) {
+    document.querySelectorAll('.form-box').forEach(div => div.classList.add('hidden'));
+    document.getElementById(secao).classList.remove('hidden');
+    if (secao === 'inscricao') carregarVestibulares();
+  }
+
+  function cadastrar() {
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
+
+    fetch(`${DB_URL}/candidatos`, {
+      method: 'POST',
+      headers: {
+        'x-apikey': API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ nome, email, senha })
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert('Cadastro realizado!');
+      mostrar('login');
+    });
+  }
+
+  function logar() {
+    const email = document.getElementById('loginEmail').value;
+    const senha = document.getElementById('loginSenha').value;
+
+    fetch(`${DB_URL}/candidatos?q={"email":"${email}","senha":"${senha}"}`, {
+      headers: { 'x-apikey': API_KEY }
+    })
+    .then(res => res.json())
+    .then(dados => {
+      if (dados.length > 0) {
+        candidatoLogado = dados[0];
+        document.getElementById('boasvindas').innerText = `Olá, ${candidatoLogado.nome}!`;
+        mostrar('inicio');
+      } else {
+        alert('Login inválido!');
+      }
+    });
+  }
+
+  function carregarNovidades() {
+    fetch(`${DB_URL}/novidades`, {
+      headers: { 'x-apikey': API_KEY }
+    })
+    .then(res => res.json())
+    .then(dados => {
+      if (dados.length > 0) {
+        document.getElementById('novidades').innerText = dados[0].texto || 'Sem novidades.';
+      } else {
+        document.getElementById('novidades').innerText = 'Nenhuma novidade disponível.';
+      }
+    });
+  }
+
+  function carregarVestibulares() {
+    fetch(`${DB_URL}/vestibulares?q={"status":"aberto"}`, {
+      headers: { 'x-apikey': API_KEY }
+    })
+    .then(res => res.json())
+    .then(lista => {
+      const select = document.getElementById('selectVest');
+      select.innerHTML = '<option value="">-- Selecione --</option>';
+      lista.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v._id;
+        opt.innerText = v.titulo;
+        select.appendChild(opt);
+      });
+    });
+  }
+
+  function carregarCamposInscricao() {
+    const vestId = document.getElementById('selectVest').value;
+    if (!vestId) return;
+
+    fetch(`${DB_URL}/formcampos?q={"vestibular_id":"${vestId}"}`, {
+      headers: { 'x-apikey': API_KEY }
+    })
+    .then(res => res.json())
+    .then(campos => {
+      const form = document.getElementById('formInscricao');
+      form.innerHTML = '';
+      campos.forEach(campo => {
+        const label = document.createElement('label');
+        label.innerText = campo.nome;
+        const input = document.createElement('input');
+        input.name = campo.nome;
+        input.type = campo.tipo === 'email' ? 'email' : campo.tipo === 'number' ? 'number' : 'text';
+        form.appendChild(label);
+        form.appendChild(document.createElement('br'));
+        form.appendChild(input);
+        form.appendChild(document.createElement('br'));
+      });
+      const botao = document.createElement('button');
+      botao.type = 'submit';
+      botao.innerText = 'Enviar Inscrição';
+      form.appendChild(botao);
+    });
+  }
+
+  function enviarInscricao(event) {
+    event.preventDefault();
+    const vestId = document.getElementById('selectVest').value;
+    const campos = {};
+    const form = document.getElementById('formInscricao');
+    Array.from(form.elements).forEach(el => {
+      if (el.name) campos[el.name] = el.value;
+    });
+
+    fetch(`${DB_URL}/inscricoes`, {
+      method: 'POST',
+      headers: {
+        'x-apikey': API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        vestibular_id: vestId,
+        candidato_id: candidatoLogado._id,
+        campos
+      })
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert('Inscrição enviada com sucesso!');
+      mostrar('inicio');
+    });
+  }
+
+  window.onload = () => {
+    carregarNovidades();
+  };
+</script>
+
+</body>
 </html>
