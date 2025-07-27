@@ -13,7 +13,6 @@
       color: #333;
     }
 
-    /* ===== MENU LATERAL ===== */
     .sidebar {
       position: fixed;
       left: 0;
@@ -79,7 +78,6 @@
       text-align: center;
     }
 
-    /* ===== BOTÕES ===== */
     button {
       padding: 8px 16px;
       border: none;
@@ -87,27 +85,11 @@
       cursor: pointer;
     }
 
-    .btn-primary {
-      background-color: #3498db;
-      color: white;
-    }
+    .btn-primary { background-color: #3498db; color: white; }
+    .btn-success { background-color: #2ecc71; color: white; }
+    .btn-danger { background-color: #e74c3c; color: white; }
+    .btn-warning { background-color: #f39c12; color: white; }
 
-    .btn-success {
-      background-color: #2ecc71;
-      color: white;
-    }
-
-    .btn-danger {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .btn-warning {
-      background-color: #f39c12;
-      color: white;
-    }
-
-    /* ===== MODAL ===== */
     .modal {
       display: none;
       position: fixed;
@@ -162,7 +144,6 @@
 </head>
 <body>
 
-  <!-- MENU LATERAL -->
   <div class="sidebar closed" id="sidebar">
     <div class="toggle" onclick="toggleSidebar()">
       <i class="fas fa-bars"></i>
@@ -174,7 +155,6 @@
     </ul>
   </div>
 
-  <!-- CONTEÚDO -->
   <div class="content">
     <h1>Gestão de Vestibulares</h1>
     <button class="btn-primary" onclick="abrirModal()">+ Cadastrar Vestibular</button>
@@ -195,7 +175,7 @@
 
   <script>
     const apiKey = '6855efa8bb5ccc0c9cf6d9ad';
-    const url = 'https://vestibulares-302d.restdb.io/rest/vestibular?max=2';
+    const url = 'https://vestibulares-302d.restdb.io/rest/vestibular?max=50';
     const modal = document.getElementById('modal');
 
     function toggleSidebar() {
@@ -219,7 +199,11 @@
       const inicio = document.getElementById('inicio').value;
       const fim = document.getElementById('fim').value;
 
-      const dados = { nome, data_inicio: inicio, data_fim: fim };
+      const dados = {
+        nomeVestibular: nome,
+        data_inicio: inicio,
+        data_termino: fim
+      };
 
       await fetch(url, {
         method: 'POST',
@@ -250,7 +234,7 @@
             <tr>
               <th>Nome</th>
               <th>Início</th>
-              <th>Fim</th>
+              <th>Término</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -260,14 +244,14 @@
       vestibulares.forEach(v => {
         html += `
           <tr>
-            <td>${v.nome}</td>
+            <td>${v.nomeVestibular}</td>
             <td>${v.data_inicio}</td>
-            <td>${v.data_fim}</td>
+            <td>${v.data_termino}</td>
             <td>
               <a href="gerenciarvest.html?id=${v._id}">
                 <button class="btn-primary">Gerenciar</button>
               </a>
-              <button class="btn-warning" onclick="editarVestibular('${v._id}', '${v.nome}', '${v.data_inicio}', '${v.data_fim}')">Editar</button>
+              <button class="btn-warning" onclick="editarVestibular('${v._id}', '${v.nomeVestibular}', '${v.data_inicio}', '${v.data_termino}')">Editar</button>
               <button class="btn-danger" onclick="excluirVestibular('${v._id}')">Excluir</button>
             </td>
           </tr>
@@ -299,9 +283,9 @@
 
       document.querySelector('.btn-success').onclick = async function () {
         const novosDados = {
-          nome: document.getElementById('nome').value,
+          nomeVestibular: document.getElementById('nome').value,
           data_inicio: document.getElementById('inicio').value,
-          data_fim: document.getElementById('fim').value
+          data_termino: document.getElementById('fim').value
         };
 
         await fetch(`${url}/${id}`, {
