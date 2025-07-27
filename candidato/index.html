@@ -74,7 +74,7 @@
         <li><a href="#" id="menuInscricao" class="block text-[#d40000] font-normal" onclick="mostrarTela('fazerInscricao')">Fazer Inscrição</a></li>
         <li><a href="#" id="menuConsultarInscricao" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarInscricao')">Consultar Inscrição</a></li>
         <li><a href="#" id="menuLocaisProva" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarLocais')">Consultar Locais de prova</a></li>
-        <li><a href="#" id="menuDesempenho" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarDesempenho')">Consultar desempenhos</a></li>
+        <li><a href="#" id="menuDesempenho" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarDesempenho')">Consultar Desempenhos</a></li>
         <li><a href="#" class="block text-[#000000] hover:underline" onclick="logout()">Sair</a></li>
       </ul>
     </nav>
@@ -130,9 +130,9 @@
   // CONFIGURAÇÕES
   const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
   const URL_CANDIDATOS = 'https://vestibulares-302d.restdb.io/rest/candidatos';
-  const URL_VESTIBULARES = 'https://vestibulares-302d.restdb.io/rest/vestibular?max=2';
+  const URL_VESTIBULARES = 'https://vestibulares-302d.restdb.io/rest/vestibular'; // removido max=2 para pegar todos
   
-  const URL_FORMULARIOS = 'https://vestibulares-302d.restdb.io/rest/formcampos?max=2'; // tabela com campos dos formulários
+  const URL_FORMULARIOS = 'https://vestibulares-302d.restdb.io/rest/formcampos';
   const URL_INSCRICOES = 'https://vestibulares-302d.restdb.io/rest/inscricoes';
 
   let candidatoLogado = null;
@@ -227,12 +227,18 @@
     })
     .then(r => r.json())
     .then(data => {
+      if (!Array.isArray(data) || data.length === 0) {
+        sel.innerHTML += '<option disabled>Nenhum vestibular disponível</option>';
+        return;
+      }
       data.forEach(vest => {
-        // Supondo que vest tenha campos _id e nomeVestibular
-        sel.innerHTML += `<option value="${vest._id}">${vest.nomeVestibular}</option>`;
+        // Ajuste aqui se o campo do nome for diferente (ex: vest.nome)
+        sel.innerHTML += `<option value="${vest._id}">${vest.nomeVestibular || vest.nome || 'Vestibular Sem Nome'}</option>`;
       });
     })
-    .catch(() => alert('Erro ao carregar vestibulares.'));
+    .catch(() => {
+      alert('Erro ao carregar vestibulares.');
+    });
   }
 
   // Carregar campos do formulário para o vestibular selecionado
