@@ -130,8 +130,7 @@
   // CONFIGURAÇÕES
   const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
   const URL_CANDIDATOS = 'https://vestibulares-302d.restdb.io/rest/candidatos';
-  const URL_VESTIBULARES = 'https://vestibulares-302d.restdb.io/rest/vestibular'; // removido max=2 para pegar todos
-  
+  const URL_VESTIBULARES = 'https://vestibulares-302d.restdb.io/rest/vestibular';  
   const URL_FORMULARIOS = 'https://vestibulares-302d.restdb.io/rest/formcampos';
   const URL_INSCRICOES = 'https://vestibulares-302d.restdb.io/rest/inscricoes';
 
@@ -232,7 +231,6 @@
         return;
       }
       data.forEach(vest => {
-        // Ajuste aqui se o campo do nome for diferente (ex: vest.nome)
         sel.innerHTML += `<option value="${vest._id}">${vest.nomeVestibular || vest.nome || 'Vestibular Sem Nome'}</option>`;
       });
     })
@@ -257,7 +255,6 @@
         form.innerHTML = '<p>Nenhum campo cadastrado para esse vestibular.</p>';
         return;
       }
-      // Para cada campo, cria o input de acordo com o tipo
       campos.forEach(campo => {
         let inputHtml = '';
         const idCampo = `campo_${campo._id}`;
@@ -304,7 +301,7 @@
     document.getElementById('vestibularSelect').value = '';
   }
 
-  // Enviar inscrição para o restdb
+  // Enviar inscrição para o restdb (modificado para salvar dados em objeto "dados")
   function enviarInscricao(event) {
     event.preventDefault();
     const vestibularId = document.getElementById('vestibularSelect').value;
@@ -314,18 +311,23 @@
     }
 
     const form = event.target;
-    const dados = { candidato_id: candidatoLogado._id, vestibular_id: vestibularId };
+    const dadosFormulario = {};
     
-    // coletar dados dos inputs do formulário dinamico
     for (let elem of form.elements) {
       if (!elem.name) continue;
-      if(elem.type === 'file') {
-        // Ignorar upload de arquivo simples (pode ser implementado depois)
-        dados[elem.name] = ''; 
+      if (elem.type === 'file') {
+        // Você pode implementar upload depois, aqui deixa vazio
+        dadosFormulario[elem.name] = '';
       } else {
-        dados[elem.name] = elem.value;
+        dadosFormulario[elem.name] = elem.value;
       }
     }
+
+    const dadosParaEnviar = {
+      vestibular_id: vestibularId,
+      dados: dadosFormulario,
+      candidato_id: candidatoLogado._id  // para ligar inscrição ao candidato (opcional, mas útil)
+    };
 
     fetch(URL_INSCRICOES, {
       method: 'POST',
@@ -333,10 +335,10 @@
         'Content-Type': 'application/json',
         'x-apikey': API_KEY
       },
-      body: JSON.stringify(dados)
+      body: JSON.stringify(dadosParaEnviar)
     })
-    .then(r => {
-      if (r.ok) {
+    .then(response => {
+      if (response.ok) {
         alert('Inscrição enviada com sucesso!');
         clearFormInscricao();
         mostrarTela('inicio');
@@ -344,7 +346,9 @@
         alert('Erro ao enviar inscrição.');
       }
     })
-    .catch(() => alert('Erro ao enviar inscrição.'));
+    .catch(() => {
+      alert('Erro ao enviar inscrição.');
+    });
   }
 
   // Carregar novidades no login
