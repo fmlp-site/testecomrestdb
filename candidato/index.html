@@ -72,7 +72,7 @@
       <ul class="px-2 py-1 space-y-1">
         <li><a href="#" id="menuInicio" class="block text-[#000000] hover:underline" onclick="mostrarTela('inicio')">Início</a></li>
         <li><a href="#" id="menuInscricao" class="block text-[#d40000] font-normal" onclick="mostrarTela('fazerInscricao')">Fazer Inscrição</a></li>
-        <li><a href="#" id="menuConsultarInscricao" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarInscricao')">Consultar Inscrição</a></li>
+        <li><a href="#" id="menuConsultarInscricao" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarInscricao'); carregarInscricoes()">Consultar Inscrição</a></li>
         <li><a href="#" id="menuLocaisProva" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarLocais')">Consultar Locais de prova</a></li>
         <li><a href="#" id="menuDesempenho" class="block text-[#000000] hover:underline" onclick="mostrarTela('consultarDesempenho')">Consultar Desempenhos</a></li>
         <li><a href="#" class="block text-[#000000] hover:underline" onclick="logout()">Sair</a></li>
@@ -108,7 +108,10 @@
       <!-- Tela Consultar Inscrição -->
       <section id="consultarInscricao" class="hidden select-text">
         <h2 class="text-lg font-semibold mb-4">Consultar Inscrição</h2>
-        <p>Funcionalidade futura</p>
+        <div id="listaInscricoes" class="text-sm text-gray-700 max-w-[700px] overflow-auto max-h-[400px]">
+          <!-- Inscrições aparecerão aqui -->
+          <p>Carregando inscrições...</p>
+        </div>
       </section>
 
       <!-- Tela Consultar Locais de Prova -->
@@ -354,6 +357,54 @@
     })
     .catch(() => {
       alert('Erro ao enviar inscrição.');
+    });
+  }
+
+  // Função para carregar inscrições do candidato logado
+  function carregarInscricoes() {
+    const container = document.getElementById('listaInscricoes');
+    container.innerHTML = 'Carregando inscrições...';
+
+    if (!candidatoLogado || !candidatoLogado.email) {
+      container.innerHTML = '<p>Erro: usuário não logado corretamente.</p>';
+      return;
+    }
+
+    // Busca inscrições filtrando pelo email do candidato
+    const filtro = encodeURIComponent(JSON.stringify({ candidato_email: candidatoLogado.email }));
+
+    fetch(`${URL_INSCRICOES}?q=${filtro}`, {
+      headers: { 'x-apikey': API_KEY }
+    })
+    .then(r => r.json())
+    .then(inscricoes => {
+      if (!inscricoes.length) {
+        container.innerHTML = '<p>Nenhuma inscrição encontrada para seu e-mail.</p>';
+        return;
+      }
+
+      // Montar lista de inscrições
+      let html = '<ul class="list-disc pl-5 space-y-2">';
+      inscricoes.forEach(inscricao => {
+        const dataCriado = new Date(inscricao.criado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        let vestibularNome = inscricao.vestibular_id || 'Vestibular';
+
+        // Opcional: você pode buscar nome do vestibular para exibir aqui
+        // Para simplificar, exibe apenas o ID do vestibular, mas dá pra melhorar depois.
+
+        html += `<li class="border border-gray-300 p-2 rounded">
+          <strong>Vestibular ID:</strong> ${vestibularNome}<br />
+          <strong>Data da inscrição:</strong> ${dataCriado}<br />
+          <strong>Dados enviados:</strong>
+          <pre class="whitespace-pre-wrap bg-gray-100 p-2 rounded max-h-48 overflow-auto">${JSON.stringify(inscricao.dados, null, 2)}</pre>
+        </li>`;
+      });
+      html += '</ul>';
+
+      container.innerHTML = html;
+    })
+    .catch(() => {
+      container.innerHTML = '<p>Erro ao carregar inscrições.</p>';
     });
   }
 
