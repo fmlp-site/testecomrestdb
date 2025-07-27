@@ -1,211 +1,157 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sistema do Candidato</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Portal do Candidato</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-    }
-    body {
-      display: flex;
-      min-height: 100vh;
-      background: #f0f0f0;
-    }
-    .sidebar {
-      width: 220px;
-      background-color: #003366;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-    .sidebar h2 {
-      margin-bottom: 20px;
-      font-size: 20px;
-      border-bottom: 1px solid white;
-      padding-bottom: 10px;
-    }
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      margin: 10px 0;
-      cursor: pointer;
-    }
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-    .content {
-      flex: 1;
-      padding: 30px;
-      background: white;
-    }
-    .hidden {
-      display: none;
-    }
-    .auth-container {
-      display: flex;
-      flex-direction: row;
-      height: 100%;
-    }
-    .auth-form {
-      flex: 1;
-      padding: 20px;
-      border-right: 1px solid #ccc;
-    }
-    .auth-form h2 {
-      margin-bottom: 10px;
-    }
-    .auth-form form {
-      display: flex;
-      flex-direction: column;
-    }
-    .auth-form input {
-      margin-bottom: 10px;
-      padding: 8px;
-    }
-    .news-panel {
-      flex: 1;
-      padding: 20px;
-    }
-    #news-content {
-      width: 100%;
-      height: 300px;
-      border: 1px solid #ccc;
-      padding: 10px;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background-color: #a0aec0; border-radius: 3px; }
   </style>
 </head>
-<body>
-  <div class="sidebar">
-    <h2>Painel do Candidato</h2>
-    <a onclick="showSection('inicio')">Início</a>
-    <a onclick="showSection('auth')">Login/Cadastro</a>
-  </div>
+<body class="bg-[#eaf2fa] font-sans text-[13px] text-[#000000]">
 
-  <div class="content">
-    <!-- Seção INÍCIO (painel de novidades) -->
-    <div id="inicio" class="hidden">
-      <div class="auth-container">
-        <div class="news-panel">
-          <h2>Novidades do Processo Seletivo</h2>
-          <div contenteditable="true" id="news-content">
-            Aqui o administrador pode escrever novidades como:
-            <ul>
-              <li>📢 Período de inscrições: 01 a 30 de julho</li>
-              <li>📄 Resultado da 1ª fase: 15 de agosto</li>
-              <li>🎓 Matrícula: 20 a 25 de agosto</li>
-            </ul>
-          </div>
-          <p><small>Este conteúdo é apenas exibido ao candidato e editável pelo admin diretamente no código.</small></p>
-        </div>
-        <div style="flex: 1;"></div> <!-- centro em branco -->
-      </div>
+<!-- TELA DE LOGIN / CADASTRO -->
+<div id="authSection" class="flex h-screen">
+  <div class="w-1/2 p-10">
+    <div id="form-login">
+      <h2 class="text-xl font-bold mb-4">Login do Candidato</h2>
+      <input type="email" id="loginEmail" placeholder="E-mail" class="border px-2 py-1 mb-2 w-full" />
+      <input type="password" id="loginSenha" placeholder="Senha" class="border px-2 py-1 mb-2 w-full" />
+      <button onclick="fazerLogin()" class="bg-blue-500 text-white px-4 py-2">Entrar</button>
+      <p class="mt-2 text-sm">Não tem conta? <span class="text-blue-600 cursor-pointer" onclick="toggleForms(true)">Criar conta</span></p>
     </div>
 
-    <!-- Seção Login/Cadastro -->
-    <div id="auth">
-      <div class="auth-container">
-        <div class="auth-form">
-          <h2 id="auth-title">Login</h2>
-          <form id="auth-form">
-            <input type="text" id="nome" placeholder="Nome Completo" class="hidden" />
-            <input type="email" id="email" placeholder="Email" required />
-            <input type="password" id="senha" placeholder="Senha" required />
-            <button type="submit">Entrar</button>
-          </form>
-          <p id="toggle-auth">Não tem uma conta? <a href="#" onclick="toggleAuth()">Cadastre-se</a></p>
-        </div>
-
-        <div class="news-panel">
-          <h2>Novidades do Processo Seletivo</h2>
-          <div contenteditable="true" id="news-content-auth">
-            Aqui o administrador pode escrever novidades como:
-            <ul>
-              <li>📢 Edital atualizado disponível</li>
-              <li>📄 Prova no dia 10/08</li>
-              <li>🔔 Fique atento aos prazos!</li>
-            </ul>
-          </div>
-          <p><small>Este conteúdo é apenas exibido ao candidato e editável pelo admin diretamente no código.</small></p>
-        </div>
-      </div>
+    <div id="form-cadastro" style="display: none;">
+      <h2 class="text-xl font-bold mb-4">Cadastro de Candidato</h2>
+      <input type="text" id="nome" placeholder="Nome Completo" class="border px-2 py-1 mb-2 w-full" />
+      <input type="email" id="email" placeholder="E-mail" class="border px-2 py-1 mb-2 w-full" />
+      <input type="password" id="senha" placeholder="Senha" class="border px-2 py-1 mb-2 w-full" />
+      <button onclick="cadastrar()" class="bg-green-600 text-white px-4 py-2">Cadastrar</button>
+      <p class="mt-2 text-sm">Já tem conta? <span class="text-blue-600 cursor-pointer" onclick="toggleForms(false)">Fazer login</span></p>
     </div>
   </div>
 
-  <script>
-    const sections = ['inicio', 'auth'];
-    function showSection(id) {
-      sections.forEach(sec => {
-        document.getElementById(sec).classList.add('hidden');
-      });
-      document.getElementById(id).classList.remove('hidden');
-    }
+  <div class="w-1/2 bg-gray-100 p-10">
+    <h2 class="text-xl font-semibold mb-4">Novidades</h2>
+    <div id="novidades" class="text-sm text-gray-700">Carregando novidades...</div>
+  </div>
+</div>
 
-    // Inicialmente, tudo escondido
-    showSection('none');
+<!-- DASHBOARD -->
+<div id="dashboardSection" class="hidden max-w-[1024px] mx-auto border border-gray-300 bg-white">
+  <!-- Header -->
+  <header class="flex items-center bg-[#d9e8fb] border-b border-gray-300 px-2 py-1 relative">
+    <div class="flex items-center gap-2">
+      <img src="https://storage.googleapis.com/a1aa/image/ef63bc8a-156e-4c00-224e-44146b3a788e.jpg" width="60" height="60" />
+      <div class="text-[10px] text-[#a0a0a0]">COMISSÃO<br>PERMANENTE<br>DE SELEÇÃO</div>
+    </div>
+    <h1 class="ml-4 font-extrabold text-[16px] text-[#1f6e1f]">Ambiente de Desenvolvimento</h1>
+    <div class="absolute right-2 top-1 flex items-center gap-1 text-[11px]">
+      <span id="userName" class="font-bold"></span>
+      <span class="cursor-pointer hover:underline" onclick="logout()">Sair</span>
+    </div>
+  </header>
 
-    // Trocar entre login e cadastro
-    let isLogin = true;
-    function toggleAuth() {
-      isLogin = !isLogin;
-      document.getElementById('auth-title').textContent = isLogin ? 'Login' : 'Cadastro';
-      document.getElementById('nome').classList.toggle('hidden', isLogin);
-      document.getElementById('toggle-auth').innerHTML = isLogin
-        ? 'Não tem uma conta? <a href="#" onclick="toggleAuth()">Cadastre-se</a>'
-        : 'Já tem uma conta? <a href="#" onclick="toggleAuth()">Faça login</a>';
-    }
+  <!-- Conteúdo -->
+  <div class="flex min-h-[300px]">
+    <!-- Menu lateral -->
+    <nav class="w-[140px] border-r border-gray-300 bg-white text-[11px]">
+      <div class="border-b border-gray-300 px-2 py-1 font-bold">Portal do Candidato</div>
+      <ul class="px-2 py-1 space-y-1">
+        <li><a href="#" class="block hover:underline" onclick="mostrarTela('inicio')">Início</a></li>
+        <li><a href="#" class="block hover:underline text-[#d40000]">Fazer Inscrição</a></li>
+        <li><a href="#" class="block hover:underline">Consultar Inscrição</a></li>
+        <li><a href="#" class="block hover:underline">Consultar Locais de prova</a></li>
+        <li><a href="#" class="block hover:underline">Consultar desempenhos</a></li>
+        <li><a href="#" class="block hover:underline" onclick="logout()">Sair</a></li>
+      </ul>
+    </nav>
 
-    document.getElementById('auth-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const nome = document.getElementById('nome').value;
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
+    <!-- Conteúdo principal -->
+    <main class="flex-1 p-3 border-l border-gray-300 bg-white">
+      <div id="inicio" class="hidden">
+        <h2 class="text-lg font-semibold mb-2">Bem-vindo ao Portal do Candidato</h2>
+        <p class="text-sm text-gray-600">Selecione uma opção no menu para continuar.</p>
+      </div>
+      <!-- Outras telas podem ser adicionadas aqui -->
+    </main>
+  </div>
+</div>
 
-      const userData = isLogin
-        ? { email, senha }
-        : { nome, email, senha };
+<script>
+  const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
+  const DB_CANDIDATOS = 'https://vestibulares-302d.restdb.io/rest/candidatos';
+  const DB_NOVIDADES = 'https://vestibulares-302d.restdb.io/rest/novidades';
 
-      const url = 'https://vestibulares-302d.restdb.io/rest/candidatos';
-      const headers = {
-        'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
-        'Content-Type': 'application/json'
-      };
+  function toggleForms(showCadastro) {
+    document.getElementById('form-cadastro').style.display = showCadastro ? 'block' : 'none';
+    document.getElementById('form-login').style.display = showCadastro ? 'none' : 'block';
+  }
 
-      try {
-        if (isLogin) {
-          // buscar usuário existente
-          const res = await fetch(`${url}?q={"email":"${email}","senha":"${senha}"}`, { headers });
-          const data = await res.json();
-          if (data.length > 0) {
-            alert("Login realizado com sucesso!");
-            // redirecionar ou abrir dashboard do candidato
-          } else {
-            alert("Email ou senha inválidos.");
-          }
-        } else {
-          // cadastro
-          const res = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(userData)
-          });
-          if (res.ok) {
-            alert("Cadastro realizado com sucesso!");
-            toggleAuth(); // volta para login
-          } else {
-            alert("Erro ao cadastrar.");
-          }
-        }
-      } catch (err) {
+  function cadastrar() {
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
+
+    fetch(DB_CANDIDATOS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-apikey': API_KEY
+      },
+      body: JSON.stringify({ nome, email, senha })
+    }).then(res => res.json())
+      .then(() => {
+        alert('Cadastro realizado com sucesso!');
+        toggleForms(false);
+      }).catch(err => {
         console.error(err);
-        alert("Erro de conexão.");
-      }
-    });
-  </script>
+        alert('Erro ao cadastrar.');
+      });
+  }
+
+  function fazerLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const senha = document.getElementById('loginSenha').value;
+
+    fetch(`${DB_CANDIDATOS}?q={"email":"${email}","senha":"${senha}"}`, {
+      headers: { 'x-apikey': API_KEY }
+    }).then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          document.getElementById('userName').innerText = data[0].nome;
+          document.getElementById('authSection').classList.add('hidden');
+          document.getElementById('dashboardSection').classList.remove('hidden');
+          mostrarTela('inicio');
+        } else {
+          alert('Credenciais inválidas.');
+        }
+      }).catch(() => alert('Erro ao fazer login.'));
+  }
+
+  function mostrarTela(telaId) {
+    document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
+    document.getElementById(telaId).classList.remove('hidden');
+  }
+
+  function logout() {
+    location.reload();
+  }
+
+  function carregarNovidades() {
+    fetch(DB_NOVIDADES, {
+      headers: { 'x-apikey': API_KEY }
+    }).then(res => res.json())
+      .then(data => {
+        document.getElementById('novidades').innerText = data.length ? data[0].mensagem : 'Nenhuma novidade disponível.';
+      });
+  }
+
+  carregarNovidades();
+</script>
+
 </body>
 </html>
-
