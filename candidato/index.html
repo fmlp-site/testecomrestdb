@@ -2,214 +2,210 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema do Candidato</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      height: 100vh;
+      padding: 0;
+      font-family: sans-serif;
     }
-
-    aside {
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: #f0f0f0;
+    }
+    .sidebar {
       width: 220px;
-      background-color: #2c3e50;
+      background-color: #003366;
       color: white;
-      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .sidebar h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+      border-bottom: 1px solid white;
+      padding-bottom: 10px;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+    .content {
+      flex: 1;
+      padding: 30px;
+      background: white;
+    }
+    .hidden {
+      display: none;
+    }
+    .auth-container {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+    }
+    .auth-form {
+      flex: 1;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+    }
+    .auth-form h2 {
+      margin-bottom: 10px;
+    }
+    .auth-form form {
       display: flex;
       flex-direction: column;
     }
-
-    aside h2 {
-      text-align: center;
-      font-size: 20px;
+    .auth-form input {
+      margin-bottom: 10px;
+      padding: 8px;
     }
-
-    aside a {
-      padding: 15px;
-      color: white;
-      text-decoration: none;
-      display: block;
-      border-bottom: 1px solid #34495e;
-      cursor: pointer;
-    }
-
-    aside a:hover {
-      background-color: #34495e;
-    }
-
-    main {
-      flex-grow: 1;
+    .news-panel {
+      flex: 1;
       padding: 20px;
-      background-color: #ecf0f1;
-      overflow-y: auto;
     }
-
-    .section {
-      display: none;
-    }
-
-    .active {
-      display: block;
-    }
-
-    .welcome {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    .novidades {
+    #news-content {
+      width: 100%;
+      height: 300px;
       border: 1px solid #ccc;
-      padding: 15px;
-      background: #fff;
-    }
-
-    .login-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 50px;
-    }
-
-    .login-form, .register-form {
-      display: none;
-      background: #fff;
-      padding: 20px;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-right: 20px;
-    }
-
-    .form-actions {
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    .form-actions button {
-      margin: 5px;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
-  <aside>
-    <h2>Candidato</h2>
+  <div class="sidebar">
+    <h2>Painel do Candidato</h2>
     <a onclick="showSection('inicio')">Início</a>
-    <a onclick="showSection('login')">Login / Cadastro</a>
-    <a onclick="loadNovidades()">Novidades</a>
-  </aside>
+    <a onclick="showSection('auth')">Login/Cadastro</a>
+  </div>
 
-  <main>
-    <div id="inicio" class="section active">
-      <div class="welcome">
-        <h1>Bem-vindo ao Sistema do Candidato</h1>
-        <p>Selecione uma opção no menu lateral para começar.</p>
+  <div class="content">
+    <!-- Seção INÍCIO (painel de novidades) -->
+    <div id="inicio" class="hidden">
+      <div class="auth-container">
+        <div class="news-panel">
+          <h2>Novidades do Processo Seletivo</h2>
+          <div contenteditable="true" id="news-content">
+            Aqui o administrador pode escrever novidades como:
+            <ul>
+              <li>📢 Período de inscrições: 01 a 30 de julho</li>
+              <li>📄 Resultado da 1ª fase: 15 de agosto</li>
+              <li>🎓 Matrícula: 20 a 25 de agosto</li>
+            </ul>
+          </div>
+          <p><small>Este conteúdo é apenas exibido ao candidato e editável pelo admin diretamente no código.</small></p>
+        </div>
+        <div style="flex: 1;"></div> <!-- centro em branco -->
       </div>
     </div>
 
-    <div id="login" class="section">
-      <div class="login-container">
-        <div class="login-form" id="loginForm">
-          <h3>Login</h3>
-          <input type="email" id="loginEmail" placeholder="Email" /><br/><br/>
-          <input type="password" id="loginSenha" placeholder="Senha" /><br/><br/>
-          <button onclick="fazerLogin()">Entrar</button>
+    <!-- Seção Login/Cadastro -->
+    <div id="auth">
+      <div class="auth-container">
+        <div class="auth-form">
+          <h2 id="auth-title">Login</h2>
+          <form id="auth-form">
+            <input type="text" id="nome" placeholder="Nome Completo" class="hidden" />
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="senha" placeholder="Senha" required />
+            <button type="submit">Entrar</button>
+          </form>
+          <p id="toggle-auth">Não tem uma conta? <a href="#" onclick="toggleAuth()">Cadastre-se</a></p>
         </div>
 
-        <div class="register-form" id="registerForm">
-          <h3>Cadastro</h3>
-          <input type="text" id="nomeCadastro" placeholder="Nome Completo" /><br/><br/>
-          <input type="email" id="emailCadastro" placeholder="Email" /><br/><br/>
-          <input type="password" id="senhaCadastro" placeholder="Senha" /><br/><br/>
-          <button onclick="fazerCadastro()">Cadastrar</button>
-        </div>
-
-        <div class="form-actions">
-          <button onclick="mostrar('login')">Login</button>
-          <button onclick="mostrar('cadastro')">Cadastro</button>
+        <div class="news-panel">
+          <h2>Novidades do Processo Seletivo</h2>
+          <div contenteditable="true" id="news-content-auth">
+            Aqui o administrador pode escrever novidades como:
+            <ul>
+              <li>📢 Edital atualizado disponível</li>
+              <li>📄 Prova no dia 10/08</li>
+              <li>🔔 Fique atento aos prazos!</li>
+            </ul>
+          </div>
+          <p><small>Este conteúdo é apenas exibido ao candidato e editável pelo admin diretamente no código.</small></p>
         </div>
       </div>
     </div>
-
-    <div id="novidades" class="section">
-      <h2>Novidades do Processo Seletivo</h2>
-      <div class="novidades" id="novidadeTexto">Carregando novidades...</div>
-    </div>
-  </main>
+  </div>
 
   <script>
-    const apiKey = "6855efa8bb5ccc0c9cf6d9ad";
-    const baseUrl = "https://vestibulares-302d.restdb.io/rest/";
-
+    const sections = ['inicio', 'auth'];
     function showSection(id) {
-      document.querySelectorAll(".section").forEach(section => {
-        section.classList.remove("active");
+      sections.forEach(sec => {
+        document.getElementById(sec).classList.add('hidden');
       });
-      document.getElementById(id).classList.add("active");
+      document.getElementById(id).classList.remove('hidden');
     }
 
-    function mostrar(tipo) {
-      document.getElementById("loginForm").style.display = tipo === "login" ? "block" : "none";
-      document.getElementById("registerForm").style.display = tipo === "cadastro" ? "block" : "none";
+    // Inicialmente, tudo escondido
+    showSection('none');
+
+    // Trocar entre login e cadastro
+    let isLogin = true;
+    function toggleAuth() {
+      isLogin = !isLogin;
+      document.getElementById('auth-title').textContent = isLogin ? 'Login' : 'Cadastro';
+      document.getElementById('nome').classList.toggle('hidden', isLogin);
+      document.getElementById('toggle-auth').innerHTML = isLogin
+        ? 'Não tem uma conta? <a href="#" onclick="toggleAuth()">Cadastre-se</a>'
+        : 'Já tem uma conta? <a href="#" onclick="toggleAuth()">Faça login</a>';
     }
 
-    function fazerCadastro() {
-      const nome = document.getElementById("nomeCadastro").value;
-      const email = document.getElementById("emailCadastro").value;
-      const senha = document.getElementById("senhaCadastro").value;
+    document.getElementById('auth-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
 
-      fetch(baseUrl + "candidatos", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-apikey": apiKey
-        },
-        body: JSON.stringify({ nome, email, senha })
-      })
-      .then(res => res.json())
-      .then(() => alert("Cadastro realizado com sucesso!"))
-      .catch(err => alert("Erro ao cadastrar: " + err));
-    }
+      const userData = isLogin
+        ? { email, senha }
+        : { nome, email, senha };
 
-    function fazerLogin() {
-      const email = document.getElementById("loginEmail").value;
-      const senha = document.getElementById("loginSenha").value;
+      const url = 'https://vestibulares-302d.restdb.io/rest/candidatos';
+      const headers = {
+        'x-apikey': '6855efa8bb5ccc0c9cf6d9ad',
+        'Content-Type': 'application/json'
+      };
 
-      fetch(baseUrl + "candidatos?q={" + `"email":"${email}","senha":"${senha}"` + "}", {
-        headers: {
-          "content-type": "application/json",
-          "x-apikey": apiKey
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          alert("Login realizado com sucesso!");
-          // Redirecionar ou mostrar dados
+      try {
+        if (isLogin) {
+          // buscar usuário existente
+          const res = await fetch(`${url}?q={"email":"${email}","senha":"${senha}"}`, { headers });
+          const data = await res.json();
+          if (data.length > 0) {
+            alert("Login realizado com sucesso!");
+            // redirecionar ou abrir dashboard do candidato
+          } else {
+            alert("Email ou senha inválidos.");
+          }
         } else {
-          alert("Email ou senha incorretos.");
+          // cadastro
+          const res = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(userData)
+          });
+          if (res.ok) {
+            alert("Cadastro realizado com sucesso!");
+            toggleAuth(); // volta para login
+          } else {
+            alert("Erro ao cadastrar.");
+          }
         }
-      });
-    }
-
-    function loadNovidades() {
-      showSection("novidades");
-      fetch(baseUrl + "novidades", {
-        headers: {
-          "content-type": "application/json",
-          "x-apikey": apiKey
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById("novidadeTexto");
-        container.innerHTML = data.map(n => `<p>${n.texto}</p>`).join("");
-      });
-    }
-
-    // Mostra a página inicial como default
-    window.onload = () => {
-      mostrar("login");
-    };
+      } catch (err) {
+        console.error(err);
+        alert("Erro de conexão.");
+      }
+    });
   </script>
 </body>
 </html>
+
