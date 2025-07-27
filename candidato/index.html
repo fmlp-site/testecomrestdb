@@ -1,157 +1,153 @@
-<!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
-<head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <title>Portal do Candidato</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+Siga o design do codigo abaixo <html class="scroll-smooth" lang="pt-BR">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Ambiente de Desenvolvimento
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <style>
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background-color: #a0aec0; border-radius: 3px; }
+   /* Custom scrollbar for the left menu */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #a0aec0;
+      border-radius: 3px;
+    }
   </style>
-</head>
-<body class="bg-[#eaf2fa] font-sans text-[13px] text-[#000000]">
-
-<!-- TELA DE LOGIN / CADASTRO -->
-<div id="authSection" class="flex h-screen">
-  <div class="w-1/2 p-10">
-    <div id="form-login">
-      <h2 class="text-xl font-bold mb-4">Login do Candidato</h2>
-      <input type="email" id="loginEmail" placeholder="E-mail" class="border px-2 py-1 mb-2 w-full" />
-      <input type="password" id="loginSenha" placeholder="Senha" class="border px-2 py-1 mb-2 w-full" />
-      <button onclick="fazerLogin()" class="bg-blue-500 text-white px-4 py-2">Entrar</button>
-      <p class="mt-2 text-sm">Não tem conta? <span class="text-blue-600 cursor-pointer" onclick="toggleForms(true)">Criar conta</span></p>
-    </div>
-
-    <div id="form-cadastro" style="display: none;">
-      <h2 class="text-xl font-bold mb-4">Cadastro de Candidato</h2>
-      <input type="text" id="nome" placeholder="Nome Completo" class="border px-2 py-1 mb-2 w-full" />
-      <input type="email" id="email" placeholder="E-mail" class="border px-2 py-1 mb-2 w-full" />
-      <input type="password" id="senha" placeholder="Senha" class="border px-2 py-1 mb-2 w-full" />
-      <button onclick="cadastrar()" class="bg-green-600 text-white px-4 py-2">Cadastrar</button>
-      <p class="mt-2 text-sm">Já tem conta? <span class="text-blue-600 cursor-pointer" onclick="toggleForms(false)">Fazer login</span></p>
-    </div>
-  </div>
-
-  <div class="w-1/2 bg-gray-100 p-10">
-    <h2 class="text-xl font-semibold mb-4">Novidades</h2>
-    <div id="novidades" class="text-sm text-gray-700">Carregando novidades...</div>
-  </div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboardSection" class="hidden max-w-[1024px] mx-auto border border-gray-300 bg-white">
-  <!-- Header -->
-  <header class="flex items-center bg-[#d9e8fb] border-b border-gray-300 px-2 py-1 relative">
+ </head>
+ <body class="bg-[#eaf2fa] font-sans text-[13px] text-[#000000]">
+  <div class="max-w-[1024px] mx-auto border border-gray-300 bg-white">
+   <!-- Header -->
+   <header class="flex items-center bg-[#d9e8fb] border-b border-gray-300 px-2 py-1 relative select-none">
     <div class="flex items-center gap-2">
-      <img src="https://storage.googleapis.com/a1aa/image/ef63bc8a-156e-4c00-224e-44146b3a788e.jpg" width="60" height="60" />
-      <div class="text-[10px] text-[#a0a0a0]">COMISSÃO<br>PERMANENTE<br>DE SELEÇÃO</div>
+     <img alt="Logo UFRGS COPERSE - blue and white logo with flame icon" class="block" height="60" src="https://storage.googleapis.com/a1aa/image/ef63bc8a-156e-4c00-224e-44146b3a788e.jpg" width="60"/>
+     <div class="text-[10px] leading-[1.1] text-[#a0a0a0] font-normal select-text">
+      COMISSÃO
+      <br/>
+      PERMANENTE
+      <br/>
+      DE SELEÇÃO
+     </div>
     </div>
-    <h1 class="ml-4 font-extrabold text-[16px] text-[#1f6e1f]">Ambiente de Desenvolvimento</h1>
-    <div class="absolute right-2 top-1 flex items-center gap-1 text-[11px]">
-      <span id="userName" class="font-bold"></span>
-      <span class="cursor-pointer hover:underline" onclick="logout()">Sair</span>
+    <h1 class="font-extrabold text-[16px] text-[#1f6e1f] ml-4 select-text">
+     Ambiente de Desenvolvimento
+    </h1>
+    <div class="absolute right-2 top-1 flex items-center gap-1 text-[11px] font-normal text-black select-text">
+     <input aria-label="Usuário" class="border border-gray-300 rounded px-1 py-[2px] w-[120px]" type="text" value=""/>
+     <span class="cursor-pointer hover:underline">
+      Sair
+     </span>
     </div>
-  </header>
-
-  <!-- Conteúdo -->
-  <div class="flex min-h-[300px]">
-    <!-- Menu lateral -->
-    <nav class="w-[140px] border-r border-gray-300 bg-white text-[11px]">
-      <div class="border-b border-gray-300 px-2 py-1 font-bold">Portal do Candidato</div>
-      <ul class="px-2 py-1 space-y-1">
-        <li><a href="#" class="block hover:underline" onclick="mostrarTela('inicio')">Início</a></li>
-        <li><a href="#" class="block hover:underline text-[#d40000]">Fazer Inscrição</a></li>
-        <li><a href="#" class="block hover:underline">Consultar Inscrição</a></li>
-        <li><a href="#" class="block hover:underline">Consultar Locais de prova</a></li>
-        <li><a href="#" class="block hover:underline">Consultar desempenhos</a></li>
-        <li><a href="#" class="block hover:underline" onclick="logout()">Sair</a></li>
-      </ul>
+    <button aria-label="Expandir" class="absolute right-0 top-0 w-6 h-6 text-[#1f6e1f] hover:text-[#0f3f0f] focus:outline-none" title="Expandir">
+     <i class="fas fa-expand-arrows-alt">
+     </i>
+    </button>
+   </header>
+   <div class="flex min-h-[300px]">
+    <!-- Left menu -->
+    <nav aria-label="Portal do Candidato" class="w-[140px] border-r border-gray-300 bg-white text-[11px] text-[#000000] select-text">
+     <div class="border-b border-gray-300 px-2 py-1 font-bold">
+      Portal do Candidato
+     </div>
+     <ul class="px-2 py-1 space-y-1">
+      <li>
+       <a class="block text-[#000000] hover:underline" href="#">
+        Início
+       </a>
+      </li>
+      <li>
+       <a class="block text-[#d40000] font-normal" href="#">
+        Fazer Inscrição
+       </a>
+      </li>
+      <li>
+       <a class="block text-[#000000] hover:underline" href="#">
+        Consultar Inscrição
+       </a>
+      </li>
+      <li>
+       <a class="block text-[#000000] hover:underline" href="#">
+        Consultar Locais de prova
+       </a>
+      </li>
+      <li>
+       <a class="block text-[#000000] hover:underline" href="#">
+        Consultar desempenhos
+       </a>
+      </li>
+      <li>
+       <a class="block text-[#000000] hover:underline" href="#">
+        Sair
+       </a>
+      </li>
+     </ul>
     </nav>
-
-    <!-- Conteúdo principal -->
+    <!-- Main content -->
     <main class="flex-1 p-3 border-l border-gray-300 bg-white">
-      <div id="inicio" class="hidden">
-        <h2 class="text-lg font-semibold mb-2">Bem-vindo ao Portal do Candidato</h2>
-        <p class="text-sm text-gray-600">Selecione uma opção no menu para continuar.</p>
-      </div>
-      <!-- Outras telas podem ser adicionadas aqui -->
+     <form>
+      <fieldset class="border border-gray-300 rounded p-3">
+       <legend class="font-semibold text-[12px] text-[#000000] select-text">
+        Selecionar a inscrição
+       </legend>
+       <div class="mb-3 border border-[#a0c4e8] bg-[#eaf2fa] text-[#3a5f9e] text-[12px] rounded p-3 leading-[1.3]">
+        Selecione abaixo qual o
+        <strong>
+         concurso
+        </strong>
+        e
+        <strong>
+         inscrição
+        </strong>
+        que você deseja acessar.
+        <br/>
+        Cada tipo de inscrição (vestibular, sisu, etc) terá uma lista de serviços diferentes associados.
+       </div>
+       <div class="mb-3 border border-[#f0c27b] bg-[#fff4d1] text-[#b36b00] text-[12px] rounded p-3 leading-[1.3]">
+        A partir de 2016, todos as novas inscrições para
+        <strong>
+         VESTIBULAR
+        </strong>
+        e
+        <strong>
+         SISU
+        </strong>
+        estarão disponíveis neste portal.
+       </div>
+       <div class="grid grid-cols-[140px_1fr] gap-x-2 gap-y-2 items-center text-[12px] font-semibold text-[#000000] mb-2 select-text">
+        <label class="text-right" for="processos-select">
+         Processos Seletivos
+        </label>
+        <select class="border border-gray-400 rounded px-2 py-1 w-full max-w-[400px] text-[12px]" id="processos-select" name="processos">
+         <option>
+          -- Selecione --
+         </option>
+         <option>
+          2018 - CV 2018 - Ciências Jurídicas e Sociais - Direito - Noturno - Inscrição
+         </option>
+         <option>
+          2016 - CV 2016 - Engenharia Civil - Inscrição
+         </option>
+        </select>
+       </div>
+       <div class="grid grid-cols-[140px_1fr] gap-x-2 gap-y-2 items-center text-[12px] font-semibold text-[#000000] select-text">
+        <label class="text-right" for="processos-finalizados-select">
+         Processos Seletivos (Finalizados)
+        </label>
+        <select class="border border-gray-400 rounded px-2 py-1 w-full max-w-[400px] text-[12px]" id="processos-finalizados-select" name="processos-finalizados">
+         <option>
+          -- Selecione --
+         </option>
+        </select>
+       </div>
+      </fieldset>
+     </form>
     </main>
+   </div>
   </div>
-</div>
-
-<script>
-  const API_KEY = '6855efa8bb5ccc0c9cf6d9ad';
-  const DB_CANDIDATOS = 'https://vestibulares-302d.restdb.io/rest/candidatos';
-  const DB_NOVIDADES = 'https://vestibulares-302d.restdb.io/rest/novidades';
-
-  function toggleForms(showCadastro) {
-    document.getElementById('form-cadastro').style.display = showCadastro ? 'block' : 'none';
-    document.getElementById('form-login').style.display = showCadastro ? 'none' : 'block';
-  }
-
-  function cadastrar() {
-    const nome = document.getElementById('nome').value;
-    const email = document.getElementById('email').value;
-    const senha = document.getElementById('senha').value;
-
-    fetch(DB_CANDIDATOS, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-apikey': API_KEY
-      },
-      body: JSON.stringify({ nome, email, senha })
-    }).then(res => res.json())
-      .then(() => {
-        alert('Cadastro realizado com sucesso!');
-        toggleForms(false);
-      }).catch(err => {
-        console.error(err);
-        alert('Erro ao cadastrar.');
-      });
-  }
-
-  function fazerLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const senha = document.getElementById('loginSenha').value;
-
-    fetch(`${DB_CANDIDATOS}?q={"email":"${email}","senha":"${senha}"}`, {
-      headers: { 'x-apikey': API_KEY }
-    }).then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          document.getElementById('userName').innerText = data[0].nome;
-          document.getElementById('authSection').classList.add('hidden');
-          document.getElementById('dashboardSection').classList.remove('hidden');
-          mostrarTela('inicio');
-        } else {
-          alert('Credenciais inválidas.');
-        }
-      }).catch(() => alert('Erro ao fazer login.'));
-  }
-
-  function mostrarTela(telaId) {
-    document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
-    document.getElementById(telaId).classList.remove('hidden');
-  }
-
-  function logout() {
-    location.reload();
-  }
-
-  function carregarNovidades() {
-    fetch(DB_NOVIDADES, {
-      headers: { 'x-apikey': API_KEY }
-    }).then(res => res.json())
-      .then(data => {
-        document.getElementById('novidades').innerText = data.length ? data[0].mensagem : 'Nenhuma novidade disponível.';
-      });
-  }
-
-  carregarNovidades();
-</script>
-
-</body>
+ </body>
 </html>
