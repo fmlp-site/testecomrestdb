@@ -161,85 +161,86 @@
     </form>
   </div>
 
-<!-- ... (restante do código permanece igual até o <script>) ... -->
+  <script>
+    const apiKey = '6855efa8bb5ccc0c9cf6d9ad';
+    const apiUrl = 'https://vestibulares-302d.restdb.io/rest/formcampos?max=2';
 
-<script>
-  const apiKey = '6855efa8bb5ccc0c9cf6d9ad';
-  const apiUrl = 'https://vestibulares-302d.restdb.io/rest/formcampos?max=2';
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const vestibularId = urlParams.get('id');
-  const vestibularIdSpan = document.getElementById('vestibularIdSpan');
-  const mensagemDiv = document.getElementById('mensagem');
-
-  if (!vestibularId) {
-    vestibularIdSpan.textContent = 'NÃO ENCONTRADO';
-    document.getElementById('formCampo').style.display = 'none';
-    mensagemDiv.className = 'msg error';
-    mensagemDiv.textContent = 'Erro: ID do vestibular não foi informado na URL.';
-    mensagemDiv.style.display = 'block';
-  } else {
-    vestibularIdSpan.textContent = vestibularId;
-  }
-
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('closed');
-  }
-
-  function toggleOpcoes() {
-    const tipo = document.getElementById('tipoCampo').value;
-    document.getElementById('opcoesBox').style.display = tipo === 'select' ? 'block' : 'none';
-  }
-
-  document.getElementById('formCampo').addEventListener('submit', async function(e) {
-    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    const vestibularId = urlParams.get('id');
+    const vestibularIdSpan = document.getElementById('vestibularIdSpan');
+    const mensagemDiv = document.getElementById('mensagem');
 
     if (!vestibularId) {
-      mostrarMensagem('ID do vestibular não disponível.', false);
-      return;
+      vestibularIdSpan.textContent = 'NÃO ENCONTRADO';
+      document.getElementById('formCampo').style.display = 'none';
+      mensagemDiv.className = 'msg error';
+      mensagemDiv.textContent = 'Erro: ID do vestibular não foi informado na URL.';
+      mensagemDiv.style.display = 'block';
+    } else {
+      vestibularIdSpan.textContent = vestibularId;
     }
 
-    const nomeCampo = document.getElementById('nomeCampo').value.trim();
-    const tipoCampo = document.getElementById('tipoCampo').value;
-    const opcoesRaw = document.getElementById('opcoes').value.trim();
-
-    const dados = {
-      vestibular_id: vestibularId,
-      nomeCampo: nomeCampo,  // <- ALTERADO AQUI
-      tipo: tipoCampo,
-      criado_em: new Date().toISOString()
-    };
-
-    if (tipoCampo === 'select' && opcoesRaw.length > 0) {
-      dados.opcoes = opcoesRaw.split(',').map(op => op.trim());
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('closed');
     }
 
-    try {
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-apikey': apiKey
-        },
-        body: JSON.stringify(dados)
-      });
+    function toggleOpcoes() {
+      const tipo = document.getElementById('tipoCampo').value;
+      document.getElementById('opcoesBox').style.display = tipo === 'select' ? 'block' : 'none';
+    }
 
-      if (res.ok) {
-        mostrarMensagem('Campo salvo com sucesso!', true);
-        document.getElementById('formCampo').reset();
-        toggleOpcoes();
-      } else {
-        mostrarMensagem('Erro ao salvar o campo.', false);
+    document.getElementById('formCampo').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (!vestibularId) {
+        mostrarMensagem('ID do vestibular não disponível.', false);
+        return;
       }
-    } catch (err) {
-      mostrarMensagem('Erro de conexão.', false);
-    }
-  });
 
-  function mostrarMensagem(msg, sucesso) {
-    mensagemDiv.textContent = msg;
-    mensagemDiv.className = 'msg ' + (sucesso ? 'success' : 'error');
-    mensagemDiv.style.display = 'block';
-    setTimeout(() => mensagemDiv.style.display = 'none', 3000);
-  }
-</script>
+      const nomeCampo = document.getElementById('nomeCampo').value.trim();
+      const tipoCampo = document.getElementById('tipoCampo').value;
+      const opcoesRaw = document.getElementById('opcoes').value.trim();
+
+      const dados = {
+        vestibular_id: vestibularId,
+        nomeCampo: nomeCampo,
+        tipo: tipoCampo,
+        criado_em: new Date().toISOString()
+      };
+
+      if (tipoCampo === 'select' && opcoesRaw.length > 0) {
+        dados.opcoes = opcoesRaw.split(',').map(op => op.trim());
+      }
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-apikey': apiKey
+          },
+          body: JSON.stringify(dados)
+        });
+
+        if (res.ok) {
+          mostrarMensagem('Campo salvo com sucesso!', true);
+          document.getElementById('formCampo').reset();
+          toggleOpcoes();
+        } else {
+          mostrarMensagem('Erro ao salvar o campo.', false);
+        }
+      } catch (err) {
+        mostrarMensagem('Erro de conexão.', false);
+      }
+    });
+
+    function mostrarMensagem(msg, sucesso) {
+      mensagemDiv.textContent = msg;
+      mensagemDiv.className = 'msg ' + (sucesso ? 'success' : 'error');
+      mensagemDiv.style.display = 'block';
+      setTimeout(() => mensagemDiv.style.display = 'none', 3000);
+    }
+  </script>
+
+</body>
+</html>
