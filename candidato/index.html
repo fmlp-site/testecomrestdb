@@ -301,12 +301,17 @@
     document.getElementById('vestibularSelect').value = '';
   }
 
-  // Enviar inscrição para o restdb
+  // Enviar inscrição para o restdb com email e criado_em
   function enviarInscricao(event) {
     event.preventDefault();
     const vestibularId = document.getElementById('vestibularSelect').value;
     if (!vestibularId) {
       alert('Selecione um vestibular.');
+      return;
+    }
+
+    if (!candidatoLogado || !candidatoLogado.email) {
+      alert('Usuário não logado corretamente.');
       return;
     }
 
@@ -316,7 +321,7 @@
     for (let elem of form.elements) {
       if (!elem.name) continue;
       if (elem.type === 'file') {
-        // Pode implementar upload futuramente, por enquanto vazio
+        // Upload de arquivo não implementado, deixe vazio
         dadosFormulario[elem.name] = '';
       } else {
         dadosFormulario[elem.name] = elem.value;
@@ -326,8 +331,7 @@
     const dadosParaEnviar = {
       vestibular_id: vestibularId,
       dados: dadosFormulario,
-      candidato_id: candidatoLogado._id,
-      email: candidatoLogado.email,
+      candidato_email: candidatoLogado.email, // campo com email do candidato logado
       criado_em: new Date().toISOString()
     };
 
@@ -372,7 +376,7 @@
     });
   }
 
-  // Inicializa as novidades assim que o script roda
+  // Inicializa novidades ao carregar a página
   carregarNovidades();
 </script>
 </body>
