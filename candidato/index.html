@@ -301,7 +301,7 @@
     document.getElementById('vestibularSelect').value = '';
   }
 
-  // Enviar inscrição para o restdb (modificado para salvar dados em objeto "dados")
+  // Enviar inscrição para o restdb
   function enviarInscricao(event) {
     event.preventDefault();
     const vestibularId = document.getElementById('vestibularSelect').value;
@@ -316,7 +316,7 @@
     for (let elem of form.elements) {
       if (!elem.name) continue;
       if (elem.type === 'file') {
-        // Você pode implementar upload depois, aqui deixa vazio
+        // Pode implementar upload futuramente, por enquanto vazio
         dadosFormulario[elem.name] = '';
       } else {
         dadosFormulario[elem.name] = elem.value;
@@ -326,7 +326,9 @@
     const dadosParaEnviar = {
       vestibular_id: vestibularId,
       dados: dadosFormulario,
-      candidato_id: candidatoLogado._id  // para ligar inscrição ao candidato (opcional, mas útil)
+      candidato_id: candidatoLogado._id,
+      email: candidatoLogado.email,
+      criado_em: new Date().toISOString()
     };
 
     fetch(URL_INSCRICOES, {
@@ -370,7 +372,7 @@
     });
   }
 
-  // Inicializa
+  // Inicializa as novidades assim que o script roda
   carregarNovidades();
 </script>
 </body>
