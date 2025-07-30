@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciar Vestibular</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      display: flex;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    aside {
+      width: 250px;
+      background: #2c3e50;
+      color: #fff;
+      height: 100vh;
+      padding: 20px;
+    }
+    aside h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    aside a {
+      display: block;
+      margin: 10px 0;
+      color: #ecf0f1;
+      text-decoration: none;
+    }
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+    .modulo {
+      display: inline-block;
+      margin: 15px;
+      padding: 20px;
+      background: #ecf0f1;
+      border-radius: 10px;
+      width: 200px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .modulo:hover {
+      background-color: #dcdde1;
+    }
+    .lista-inscricoes {
+      margin-top: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    select {
+      padding: 5px;
+    }
+    button {
+      padding: 5px 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <h2>Admin - Vestibular</h2>
+    <a href="dashboard.html">🏠 Painel Inicial</a>
+    <a href="vestibulares.html">📋 Vestibulares</a>
+    <a href="gerenciarvest.html">⚙️ Gerenciar Vestibular</a>
+    <a href="#">🔒 Sair</a>
+  </aside>
+
+  <main>
+    <h1>Gerenciar Vestibular</h1>
+    <div class="modulo" onclick="abrirModulo('cadastroform.html')">📝<br>Cadastro do Formulário</div>
+    <div class="modulo" onclick="verInscricoes()">📄<br>Ver Lista de Inscrições</div>
+    <div class="modulo" onclick="abrirModulo('locais.html')">📍<br>Adicionar Locais de Provas</div>
+    <div class="modulo" onclick="abrirModulo('atribuirlocais.html')">✅<br>Atribuir Locais de Prova</div>
+
+    <div id="inscricoes" class="lista-inscricoes" style="display: none;">
+      <h2>Lista de Inscrições</h2>
+      <table id="tabelaInscricoes">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>CPF</th>
+            <th>Curso</th>
+            <th>Status</th>
+            <th>Atualizar</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button onclick="gerarPDF()">📥 Gerar PDF</button>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const apiKey = "6855efa8bb5ccc0c9cf6d9ad";
+    const vestibularId = new URLSearchParams(window.location.search).get("id");
+
+    function abrirModulo(pagina) {
+      window.location.href = `${pagina}?id=${vestibularId}`;
+    }
+
+    async function verInscricoes() {
+      document.getElementById("inscricoes").style.display = "block";
+      const tbody = document.querySelector("#tabelaInscricoes tbody");
+      tbody.innerHTML = "";
+
+      const url = `https://vestibulares-302d.restdb.io/rest/inscricoes?q={"vestibular_id":"${vestibularId}"}`;
+      const resp = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-apikey": apiKey
+        }
+      });
+      const dados = await resp.json();
+
+      dados.forEach(candidato => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${candidato.nome}</td>
+          <td>${candidato.email}</td>
+          <td>${candidato.cpf}</td>
+          <td>${candidato.curso}</td>
+          <td>
+            <select onchange="atualizarStatus('${candidato._id}', this.value)">
+              <option ${candidato.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+              <option ${candidato.status === 'Homologada' ? 'selected' : ''}>Homologada</option>
+              <option ${candidato.status === 'Não Homologada' ? 'selected' : ''}>Não Homologada</option>
+            </select>
+          </td>
+          <td><button onclick="atualizarStatus('${candidato._id}', this.parentElement.parentElement.querySelector('select').value)">Salvar</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function atualizarStatus(id, novoStatus) {
+      await fetch(`https://vestibulares-302d.restdb.io/rest/inscricoes/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-apikey": apiKey
+        },
+        body: JSON.stringify({ status: novoStatus })
+      });
+      alert("Status atualizado!");
+    }
+
+    async function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("Lista de Inscrições", 15, 15);
+
+      const table = document.querySelector("#tabelaInscricoes");
+      let y = 25;
+
+      for (let i = 0; i < table.rows.length; i++) {
+        const row = [...table.rows[i].cells].map(td => td.innerText).join(" | ");
+        doc.text(row, 15, y);
+        y += 10;
+      }
+
+      doc.save("lista-inscricoes.pdf");
+    }
+  </script>
+
+</body>
+</html>
